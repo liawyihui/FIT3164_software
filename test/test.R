@@ -50,20 +50,19 @@ tree.model <- rpart(lymphedema ~ no.of.nodes.removed + age + sex + radiation.fra
 
 # Predict the binary response on the test data
 tree_predictions <- predict(tree.model, test_data)
+#tree_predictions <- prediction(as.numeric(tree_predictions), test_data$lymphedema)
+#tree.perf <- performance(tree_predictions, "tpr", "fpr")
+#tree.auc <- performance(tree_predictions, "auc")
+#cat("AUC for Support Vector Machines: ", as.numeric(tree.auc@y.values))
+#plot(tree.perf,colorize=TRUE,print.cutoffs.at=seq(0.1,by=0.1))
 
 roc_curve <- roc(test_data$lymphedema, tree_predictions)
-
-# Plot the ROC curve
-plot(roc_curve, main = "ROC Curve", col = "blue", lwd = 2)
-
-# Add a point for the optimal threshold
-coords <- coords(roc_curve, "best")
-points(coords, col = "red", pch = 16)
+optimal_threshold <- coords(roc_curve, "best", best.method = "youden")$threshold
 
 # Print the optimal threshold
-cat("Optimal Threshold:", coords$threshold, "\n")
+cat("Optimal Threshold:", optimal_threshold, "\n")
 
-tree_predictions <- ifelse(tree_predictions > coords$threshold, 1, 0)
+tree_predictions <- ifelse(tree_predictions > optimal_threshold, 1, 0)
 
 # Calculate accuracy
 tree_accuracy <- mean(tree_predictions == test_data$lymphedema)
@@ -75,6 +74,24 @@ cat("Decision Tree Accuracy:", tree_accuracy, "\n")
 source("my.prediction.stats.R")
 lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
 my.pred.stats(tree_predictions, lymp_test)
+
+### ANN ###
+ann.model <- neuralnet(lymphedema ~ no.of.nodes.removed + age + sex + radiation.fraction + amount.of.radiation + breast.reconstruction + chemo + axi.radioteraphy, data = train_data, , hidden = 3, linear.output = FALSE)
+
+ann_predictions <- predict(ann.model, newdata = test_data)
+
+roc_curve <- roc(test_data$lymphedema, ann_predictions)
+optimal_threshold <- coords(roc_curve, "best", best.method = "youden")$threshold
+
+# Print the optimal threshold
+cat("Optimal Threshold:", optimal_threshold, "\n")
+
+ann_predictions_binary <- ifelse(ann_predictions > optimal_threshold, 1, 0)
+
+# AUC, sensitivity and specificity
+source("my.prediction.stats.R")
+lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
+my.pred.stats(ann_predictions_binary, lymp_test)
 
 ### SVM ### # got issue
 svm.train <- svm(lymphedema ~ no.of.nodes.removed + age + sex + radiation.fraction + amount.of.radiation + breast.reconstruction + chemo + axi.radioteraphy, data = train_data, type = 'C-classification', kernel = 'radial')
@@ -92,28 +109,3 @@ cat("SVM Accuracy:", svm_accuracy, "\n")
 source("my.prediction.stats.R")
 lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
 my.pred.stats(svm_predictions, lymp_test)
-
-### ANN ###
-ann.model <- neuralnet(lymphedema ~ no.of.nodes.removed + age + sex + radiation.fraction + amount.of.radiation + breast.reconstruction + chemo + axi.radioteraphy, data = train_data, , hidden = 3, linear.output = FALSE)
-
-ann_predictions <- predict(ann.model, newdata = test_data)
-
-# Create a ROC curve
-roc_curve <- roc(test_data$lymphedema, as.numeric(ann_predictions))
-
-# Plot the ROC curve
-plot(roc_curve, main = "ROC Curve", col = "blue", lwd = 2)
-
-# Add a point for the optimal threshold
-coords <- coords(roc_curve, "best")
-points(coords, col = "red", pch = 16)
-
-# Print the optimal threshold
-cat("Optimal Threshold:", coords$threshold, "\n")
-
-ann_predictions_binary <- ifelse(ann_predictions > coords$threshold, 1, 0)
-
-# AUC, sensitivity and specificity
-source("my.prediction.stats.R")
-lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
-my.pred.stats(ann_predictions_binary, lymp_test)
