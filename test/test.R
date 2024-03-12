@@ -50,11 +50,21 @@ tree.model <- rpart(lymphedema ~ no.of.nodes.removed + age + sex + radiation.fra
 
 # Predict the binary response on the test data
 tree_predictions <- predict(tree.model, test_data)
-#tree_predictions <- prediction(as.numeric(tree_predictions), test_data$lymphedema)
-#tree.perf <- performance(tree_predictions, "tpr", "fpr")
-#tree.auc <- performance(tree_predictions, "auc")
-#cat("AUC for Support Vector Machines: ", as.numeric(tree.auc@y.values))
-#plot(tree.perf,colorize=TRUE,print.cutoffs.at=seq(0.1,by=0.1))
+
+roc_curve <- prediction(tree_predictions, test_data$lymphedema)
+roc_data <- performance(roc_curve, "tpr", "fpr")
+fpr <- unlist(slot(roc_data, "x.values"))
+tpr <- unlist(slot(roc_data, "y.values"))
+
+# Calculate J statistic
+J <- tpr - fpr
+
+# Find the index of the best threshold
+ix <- which.max(J)
+
+# Get the best threshold
+best_thresh <- slot(roc_data, "alpha.values")[[ix]]
+cat('Best Threshold=', best_thresh, '\n')
 
 roc_curve <- roc(test_data$lymphedema, tree_predictions)
 optimal_threshold <- coords(roc_curve, "best", best.method = "youden")$threshold
@@ -94,10 +104,18 @@ lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
 my.pred.stats(ann_predictions_binary, lymp_test)
 
 ### SVM ### # got issue
-svm.train <- svm(lymphedema ~ no.of.nodes.removed + age + sex + radiation.fraction + amount.of.radiation + breast.reconstruction + chemo + axi.radioteraphy, data = train_data, type = 'C-classification', kernel = 'radial')
+svm.train <- svm(lymphedema ~ no.of.nodes.removed + age + sex + radiation.fraction + amount.of.radiation + breast.reconstruction + chemo + axi.radioteraphy, data = train_data, kernel = 'linear')
 
 # Predict the binary response on the test data
 svm_predictions <- predict(svm.train, newdata = test_data)
+
+roc_curve <- roc(test_data$lymphedema, svm_predictions)
+optimal_threshold <- coords(roc_curve, "best", best.method = "youden")$threshold
+
+# Print the optimal threshold
+cat("Optimal Threshold:", optimal_threshold, "\n")
+
+svm_predictions_binary <- ifelse(svm_predictions > optimal_threshold, 1, 0)
 
 # Calculate accuracy for the SVM model
 svm_accuracy <- mean(svm_predictions == test_data$lymphedema)
