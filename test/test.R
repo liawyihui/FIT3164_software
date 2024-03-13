@@ -28,7 +28,7 @@ test_data <- df[-split_index, ]
 
 ### Logistic Regression ###
 # Fit the logistic regression model on the training data
-lr.model <- glm(lymphedema ~ no.of.nodes.removed + age + sex + radiation.fraction + amount.of.radiation + breast.reconstruction + chemo + axi.radioteraphy, family = "binomial", data = train_data)
+lr.model <- glm(lymphedema~., family = "binomial", data = train_data)
 # Predict the binary response on the test data
 lr_predictions <- predict(lr.model, newdata = test_data, type = "response")
 # Convert predictions to binary (0 or 1)
@@ -46,25 +46,10 @@ lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
 my.pred.stats(lr_predictions, lymp_test)
 
 ### Decision Tree ###
-tree.model <- rpart(lymphedema ~ no.of.nodes.removed + age + sex + radiation.fraction + amount.of.radiation + breast.reconstruction + chemo + axi.radioteraphy, data = train_data)
+tree.model <- rpart(lymphedema~., data = train_data)
 
 # Predict the binary response on the test data
 tree_predictions <- predict(tree.model, test_data)
-
-roc_curve <- prediction(tree_predictions, test_data$lymphedema)
-roc_data <- performance(roc_curve, "tpr", "fpr")
-fpr <- unlist(slot(roc_data, "x.values"))
-tpr <- unlist(slot(roc_data, "y.values"))
-
-# Calculate J statistic
-J <- tpr - fpr
-
-# Find the index of the best threshold
-ix <- which.max(J)
-
-# Get the best threshold
-best_thresh <- slot(roc_data, "alpha.values")[[ix]]
-cat('Best Threshold=', best_thresh, '\n')
 
 roc_curve <- roc(test_data$lymphedema, tree_predictions)
 optimal_threshold <- coords(roc_curve, "best", best.method = "youden")$threshold
@@ -72,10 +57,10 @@ optimal_threshold <- coords(roc_curve, "best", best.method = "youden")$threshold
 # Print the optimal threshold
 cat("Optimal Threshold:", optimal_threshold, "\n")
 
-tree_predictions <- ifelse(tree_predictions > optimal_threshold, 1, 0)
+tree_predictions_binary <- ifelse(tree_predictions > optimal_threshold, 1, 0)
 
 # Calculate accuracy
-tree_accuracy <- mean(tree_predictions == test_data$lymphedema)
+tree_accuracy <- mean(tree_predictions_binary == test_data$lymphedema)
 
 # Print the accuracy
 cat("Decision Tree Accuracy:", tree_accuracy, "\n")
@@ -83,10 +68,10 @@ cat("Decision Tree Accuracy:", tree_accuracy, "\n")
 # AUC, sensitivity and specificity
 source("my.prediction.stats.R")
 lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
-my.pred.stats(tree_predictions, lymp_test)
+my.pred.stats(tree_predictions_binary, lymp_test)
 
 ### ANN ###
-ann.model <- neuralnet(lymphedema ~ no.of.nodes.removed + age + sex + radiation.fraction + amount.of.radiation + breast.reconstruction + chemo + axi.radioteraphy, data = train_data, , hidden = 3, linear.output = FALSE)
+ann.model <- neuralnet(lymphedema ~ no.of.nodes.removed + age + sex + radiation.fraction + amount.of.radiation + breast.reconstruction + chemo + axi.radioteraphy, data = train_data, hidden = 3, linear.output = FALSE)
 
 ann_predictions <- predict(ann.model, newdata = test_data)
 
