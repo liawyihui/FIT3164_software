@@ -28,7 +28,7 @@ test_data <- df[-split_index, ]
 
 ### Logistic Regression ###
 # Fit the logistic regression model on the training data
-lr.model <- glm(lymphedema~., family = "binomial", data = train_data)
+lr.model <- glm(lymphedema ~ no.of.nodes.removed + age + sex + radiation.fraction + amount.of.radiation + breast.reconstruction + chemo + axi.radioteraphy, family = "binomial", data = train_data)
 # Predict the binary response on the test data
 lr_predictions <- predict(lr.model, newdata = test_data, type = "response")
 # Convert predictions to binary (0 or 1)
@@ -46,7 +46,12 @@ lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
 my.pred.stats(lr_predictions, lymp_test)
 
 ### Decision Tree ###
-tree.model <- rpart(lymphedema~., data = train_data)
+set.seed(123456)
+split_index <- sample(1:nrow(df), 0.8 * nrow(df))
+train_data <- df[split_index, ]
+test_data <- df[-split_index, ]
+
+tree.model <- rpart(lymphedema ~ no.of.nodes.removed + age + sex + radiation.fraction + amount.of.radiation + breast.reconstruction + chemo + axi.radioteraphy, data = train_data)
 
 # Predict the binary response on the test data
 tree_predictions <- predict(tree.model, test_data)
@@ -71,7 +76,12 @@ lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
 my.pred.stats(tree_predictions_binary, lymp_test)
 
 ### ANN ###
-ann.model <- neuralnet(lymphedema ~ no.of.nodes.removed + age + sex + radiation.fraction + amount.of.radiation + breast.reconstruction + chemo + axi.radioteraphy, data = train_data, hidden = 3, linear.output = FALSE)
+set.seed(123456)
+split_index <- sample(1:nrow(df), 0.8 * nrow(df))
+train_data <- df[split_index, ]
+test_data <- df[-split_index, ]
+
+ann.model <- neuralnet(lymphedema ~ no.of.nodes.removed + age + sex + radiation.fraction + amount.of.radiation + breast.reconstruction + chemo + axi.radioteraphy, data = train_data, hidden = 3, linear.output=TRUE, stepmax=1e7)
 
 ann_predictions <- predict(ann.model, newdata = test_data)
 
@@ -89,7 +99,12 @@ lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
 my.pred.stats(ann_predictions_binary, lymp_test)
 
 ### SVM ### # got issue
-svm.train <- svm(lymphedema ~ no.of.nodes.removed + age + sex + radiation.fraction + amount.of.radiation + breast.reconstruction + chemo + axi.radioteraphy, data = train_data, kernel = 'linear')
+set.seed(123456)
+split_index <- sample(1:nrow(df), 0.8 * nrow(df))
+train_data <- df[split_index, ]
+test_data <- df[-split_index, ]
+
+svm.train <- svm(lymphedema ~ no.of.nodes.removed + age + sex + radiation.fraction + amount.of.radiation + breast.reconstruction + chemo + axi.radioteraphy, data = train_data, kernel = 'radial')
 
 # Predict the binary response on the test data
 svm_predictions <- predict(svm.train, newdata = test_data)
@@ -103,7 +118,7 @@ cat("Optimal Threshold:", optimal_threshold, "\n")
 svm_predictions_binary <- ifelse(svm_predictions > optimal_threshold, 1, 0)
 
 # Calculate accuracy for the SVM model
-svm_accuracy <- mean(svm_predictions == test_data$lymphedema)
+svm_accuracy <- mean(svm_predictions_binary == test_data$lymphedema)
 
 # Print the SVM accuracy
 cat("SVM Accuracy:", svm_accuracy, "\n")
@@ -111,4 +126,4 @@ cat("SVM Accuracy:", svm_accuracy, "\n")
 # AUC, sensitivity and specificity
 source("my.prediction.stats.R")
 lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
-my.pred.stats(svm_predictions, lymp_test)
+my.pred.stats(svm_predictions_binary, lymp_test)
