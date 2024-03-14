@@ -1,3 +1,21 @@
+setwd("D:/FIT3164_software/test")
+# loading the packages needed for the assignment/tasks
+library(dplyr)
+library(tidyr)
+library(skimr) # for summary statistics table
+library(scales)
+library(ggplot2)
+library(corrplot)
+library(rpart)
+library(caret) # confusion matrix
+library(tree) # for Decision Tree
+library(e1071) # for Naive Bayes and Support Vector Machines
+library(randomForest) # for Random Forest
+library(adabag) # for Bagging and Boosting
+library(neuralnet) # for ANN
+library(ROCR) # for AUC and ROC
+library(pROC)
+
 library(openxlsx)
 library(svDialogs)
 library(data.table)
@@ -10,13 +28,7 @@ library(ROCit)
 
 #-------------------------------------------------------------------------------
 # Read data excel file
-
-DataFile <- dlg_open(title = "Select excel data file:", filters = dlg_filters[c("All"), ])$res
-DataFolder <- dirname(DataFile)
-
 DataTable <- read.csv("Lymph_dataset_raw.csv")
-
-
 
 #-------------------------------------------------------------------------------
 # Select variables + endpoint
@@ -42,18 +54,14 @@ set.seed(randomseed)
 control <- trainControl(method="repeatedcv", number=10, repeats=3)
 # train the model
 registerDoMC(cores=6)
-DTmodel <- train(Endpoint~., data=train, method="rpart", trControl=control, tuneLength=5)
-# summarize the model
-print(DTmodel)
-# save model for later use
-save(DTmodel, file= paste(DataFolder,"/DTmodel.Rdata", sep = ""))
+LRmodel <- train(Endpoint~., data=train, method="LogitBoost", trControl=control, tuneLength=5)
 
 
 #-------------------------------------------------------------------------------
 # Find Cut-off value for probability to maximize balanced accuracy
 
 # Get probability
-pred_all_prob <- as.data.frame(DTmodel %>% predict(Table1, type = "prob"))
+pred_all_prob <- as.data.frame(LRmodel %>% predict(Table1, type = "prob"))
 
 Table_cutoff <- data.frame( "Cutoff"             = seq(0.01, 1, by= 0.01),
                             "Balanced_Accuracy"  = 0)    
@@ -69,13 +77,13 @@ cutoff <- Table_cutoff$Cutoff[which.max(Table_cutoff$Balanced_Accuracy)]
 
 #-------------------------------------------------------------------------------
 # Make prediction on test set 
-pred_train_prob <- as.data.frame(DTmodel %>% predict(train, type = "prob"))
-pred_test_prob <- as.data.frame(DTmodel %>% predict(test, type = "prob"))
-pred_all_prob <- as.data.frame(DTmodel %>% predict(Table1, type = "prob"))
+pred_train_prob <- as.data.frame(LRmodel %>% predict(train, type = "prob"))
+pred_test_prob <- as.data.frame(LRmodel %>% predict(test, type = "prob"))
+pred_all_prob <- as.data.frame(LRmodel %>% predict(Table1, type = "prob"))
 
-pred_train <- as.factor(ifelse(pred_train_prob$`1`>cutoff,"1","0"))
-pred_test <- as.factor(ifelse(pred_test_prob$`1`>cutoff,"1","0"))
-pred_all <- as.factor(ifelse(pred_all_prob$`1`>cutoff,"1","0"))
+pred_train <- as.factor(ifelse(pred_train_prob$`1`>0.5,"1","0"))
+pred_test <- as.factor(ifelse(pred_test_prob$`1`>0.5,"1","0"))
+pred_all <- as.factor(ifelse(pred_all_prob$`1`>0.5,"1","0"))
 
 
 #-------------------------------------------------------------------------------
@@ -86,6 +94,7 @@ ConfMat <- confusionMatrix(Table2)
 Performance <- setDT(as.data.frame(ConfMat$byClass), keep.rownames = TRUE)[]
 colnames(Performance) <- c("Parameter", "Value")
 Performance
+mean(pred_all == Table1$Endpoint)
 
 
 #-------------------------------------------------------------------------------
@@ -95,20 +104,21 @@ ConfMat_train <- confusionMatrix(Table21)
 Performance_train <- setDT(as.data.frame(ConfMat_train$byClass), keep.rownames = TRUE)[]
 colnames(Performance_train) <- c("Parameter", "Value")
 Performance_train
-
+mean(pred_train == train$Endpoint)
 
 #-------------------------------------------------------------------------------
 # Confusion matrix and model performance in Test
-Table22 <- table(factor(pred_test,union), factor(test$Endpoint,union))
+Table22 <- table(factor(test$Endpoint,union), factor(pred_test,union))
 ConfMat_test <- confusionMatrix(Table22)
 Performance_test <- setDT(as.data.frame(ConfMat_test$byClass), keep.rownames = TRUE)[]
 colnames(Performance_test) <- c("Parameter", "Value")
 Performance_test
+mean(pred_test == test$Endpoint)
 
 #-------------------------------------------------------------------------------  
 # Estimate Descriptor importance
-DescImportance <- data.frame(Descriptor = row.names(varImp(DTmodel, scale=TRUE)$importance),
-                             Value = varImp(DTmodel, scale=TRUE)$importance)
+DescImportance <- data.frame(Descriptor = row.names(varImp(LRmodel, scale=TRUE)$importance),
+                             Value = varImp(LRmodel, scale=TRUE)$importance$X0)
 colnames(DescImportance) <- c("Descriptor", "Value")
 DescImportance <- DescImportance[order(DescImportance$Value, decreasing = TRUE),]; DescImportance
 
