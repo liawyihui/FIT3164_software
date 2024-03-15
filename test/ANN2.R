@@ -28,11 +28,11 @@ library(ROCit)
 # reading the csv file required and creating individual data by setting a seed (my Student ID)
 DataTable <- read.csv("Lymph_dataset_raw.csv")
 
-Table1 <- df %>%
+Table1 <- DataTable %>%
   select(-c("id", "opd", "nam.y", "lnn","int", "le"))
 #select(-c("id", "opd", "nam.y", "tax", "lnn","axi","int", "che", "fx", "Gy", "recon", "le"))
 
-Table1$Endpoint <- factor(df$le)
+Table1$Endpoint <- factor(DataTable$le)
 
 randomseed <- 1165# 365# 1675# 
 
