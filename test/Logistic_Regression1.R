@@ -26,7 +26,6 @@ library(doMC)
 library(ROCit)
 
 # reading the csv file required and creating individual data by setting a seed (my Student ID)
-rm(list = ls())
 #df <- read.csv("lymphedema_dataset.csv")
 DataTable <- read.csv("Lymph_dataset_raw.csv")
 #set.seed(123456)
@@ -66,8 +65,6 @@ cat("Accuracy:", accuracy, "\n")
 #lymp_test <- factor(test_data$Endpoint, levels = c(0, 1))
 #my.pred.stats(lr_predictions_binary, lymp_test)
 confusionMatrix(table(actual = test_data$Endpoint, predicted = lr_predictions_binary))
-roc_object <- roc(as.numeric(test_data$Endpoint), as.numeric(lr_predictions_binary))
-auc(roc_object)
 
 ROCit_obj_test <- rocit(score=lr_predictions,class=test_data$Endpoint)
 ROCit_obj_test$AUC
