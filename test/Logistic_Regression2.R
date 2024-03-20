@@ -24,7 +24,7 @@ library(dplyr)
 library(purrr)
 library(doMC)
 library(ROCit)
-
+library(xlsx)
 
 #-------------------------------------------------------------------------------
 # Read data excel file
@@ -34,22 +34,22 @@ DataTable <- read.csv("Lymph_dataset_raw.csv")
 # Select variables + endpoint
 Table1 <- DataTable %>%
   select(-c("id", "opd", "nam.y", "lnn","int", "le"))
-  #select(-c("id", "opd", "nam.y", "tax", "lnn","axi","int", "che", "fx", "Gy", "recon", "le"))
+#select(-c("id", "opd", "nam.y", "tax", "lnn","axi","int", "che", "fx", "Gy", "recon", "le"))
 
 Table1$Endpoint <- factor(DataTable$le)
 
-randomseed <- 1165# 365# 1675#
+randomseed <- 1165# 365# 1675# 
 
 
 set.seed(randomseed)
-  
-  
-  # Split data into train/test with ratio 8/2 of the sample size
-  in_rows <- createDataPartition(y = Table1$Endpoint, p = 0.8, list = FALSE)
-  train <- Table1[in_rows, ]
-  test <- Table1[-in_rows, ]
-  
-  
+
+
+# Split data into train/test with ratio 8/2 of the sample size
+in_rows <- createDataPartition(y = Table1$Endpoint, p = 0.8, list = FALSE)
+train <- Table1[in_rows, ]
+test <- Table1[-in_rows, ]
+
+
 #-------------------------------------------------------------------------------
 control <- trainControl(method="repeatedcv", number=10, repeats=3)
 # train the model
@@ -81,9 +81,9 @@ pred_train_prob <- as.data.frame(LRmodel %>% predict(train, type = "prob"))
 pred_test_prob <- as.data.frame(LRmodel %>% predict(test, type = "prob"))
 pred_all_prob <- as.data.frame(LRmodel %>% predict(Table1, type = "prob"))
 
-pred_train <- as.factor(ifelse(pred_train_prob$`1`>0.5,"1","0"))
-pred_test <- as.factor(ifelse(pred_test_prob$`1`>0.5,"1","0"))
-pred_all <- as.factor(ifelse(pred_all_prob$`1`>0.5,"1","0"))
+pred_train <- as.factor(ifelse(pred_train_prob$`1`>cutoff,"1","0"))
+pred_test <- as.factor(ifelse(pred_test_prob$`1`>cutoff,"1","0"))
+pred_all <- as.factor(ifelse(pred_all_prob$`1`>cutoff,"1","0"))
 
 
 #-------------------------------------------------------------------------------
@@ -96,7 +96,6 @@ colnames(Performance) <- c("Parameter", "Value")
 Performance
 mean(pred_all == Table1$Endpoint)
 
-
 #-------------------------------------------------------------------------------
 # Confusion matrix and model performance in Train
 Table21 <- table(factor(pred_train,union), factor(train$Endpoint,union))
@@ -108,7 +107,7 @@ mean(pred_train == train$Endpoint)
 
 #-------------------------------------------------------------------------------
 # Confusion matrix and model performance in Test
-Table22 <- table(factor(test$Endpoint,union), factor(pred_test,union))
+Table22 <- table(factor(pred_test,union), factor(test$Endpoint,union))
 ConfMat_test <- confusionMatrix(Table22)
 Performance_test <- setDT(as.data.frame(ConfMat_test$byClass), keep.rownames = TRUE)[]
 colnames(Performance_test) <- c("Parameter", "Value")
