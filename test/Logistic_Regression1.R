@@ -38,6 +38,12 @@ Table1 <- DataTable %>%
 
 Table1$Endpoint <- factor(DataTable$le)
 
+# Exclude the Endpoint variable before normalizing
+independent_variables <- setdiff(names(Table1), "Endpoint")
+
+# Normalize independent variables
+Table1[, independent_variables] <- scale(Table1[, independent_variables])
+
 randomseed <- 1165# 365# 1675#
 
 set.seed(randomseed)
