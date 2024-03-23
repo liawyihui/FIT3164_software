@@ -1,4 +1,4 @@
-setwd("D:/FIT3164_software/models")
+setwd("D:/FIT3164_software/models_data_aug")
 # loading the packages needed for the assignment/tasks
 library(dplyr)
 library(tidyr)
@@ -9,6 +9,7 @@ library(corrplot)
 library(rpart)
 library(caret) # confusion matrix
 library(tree) # for Decision Tree
+library(C50) # For C5.0
 library(e1071) # for Naive Bayes and Support Vector Machines
 library(randomForest) # for Random Forest
 library(adabag) # for Bagging and Boosting
@@ -26,17 +27,13 @@ library(doMC)
 library(ROCit)
 
 # reading the csv file required and creating individual data by setting a seed (my Student ID)
-#df <- read.csv("lymphedema_dataset.csv")
-DataTable <- read.csv("Lymph_dataset_raw.csv")
-#set.seed(123456)
+df <- read.csv("Lymph_dataset_raw.csv")
 
-#-------------------------------------------------------------------------------
-# Select variables + endpoint
-Table1 <- DataTable %>%
+Table1 <- df %>%
   select(-c("id", "opd", "nam.y", "lnn","int", "le"))
-  #select(-c("id", "opd", "nam.y", "tax", "lnn","axi","int", "che", "fx", "Gy", "recon", "le"))
+#select(-c("id", "opd", "nam.y", "tax", "lnn","axi","int", "che", "fx", "Gy", "recon", "le"))
 
-Table1$Endpoint <- factor(DataTable$le)
+Table1$Endpoint <- factor(df$le)
 
 # Exclude the Endpoint variable before normalizing
 independent_variables <- setdiff(names(Table1), "Endpoint")
@@ -44,34 +41,33 @@ independent_variables <- setdiff(names(Table1), "Endpoint")
 # Normalize independent variables
 Table1[, independent_variables] <- scale(Table1[, independent_variables])
 
-randomseed <- 1165# 365# 1675#
+randomseed <- 1165# 365# 1675# 
 
 set.seed(randomseed)
-   
-# Split the data into training and testing sets (e.g., 80% training and 20% testing)
+
+### Decision Tree ###
 split_index <- createDataPartition(y = Table1$Endpoint, p = 0.8, list = FALSE)
 train_data <- Table1[split_index, ]
 test_data <- Table1[-split_index, ]
 
-# Fit the logistic regression model on the training data
-lr.model <- glm(Endpoint~., family = "binomial", data = train_data)
+C5.model <- C5.0(Endpoint~., data = train_data)
+
 # Predict the binary response on the test data
-lr_predictions <- predict(lr.model, newdata = test_data, type = "response")
-# Convert predictions to binary (0 or 1)
-lr_predictions_binary <- ifelse(lr_predictions > 0.5, 1, 0)
+C5_predictions <- predict(C5.model, test_data, type="class")
 
 # Calculate accuracy
-accuracy <- mean(lr_predictions_binary == test_data$Endpoint)
+C5_accuracy <- mean(C5_predictions == test_data$Endpoint)
 
 # Print the accuracy
-cat("Accuracy:", accuracy, "\n")
+cat("C5.0 Accuracy:", C5_accuracy, "\n")
 
 # AUC, sensitivity and specificity
 #source("my.prediction.stats.R")
-#lymp_test <- factor(test_data$Endpoint, levels = c(0, 1))
-#my.pred.stats(lr_predictions_binary, lymp_test)
-confusionMatrix(table(actual = test_data$Endpoint, predicted = lr_predictions_binary))
+#lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
+#my.pred.stats(C5_predictions_binary, lymp_test)
 
-ROCit_obj_test <- rocit(score=lr_predictions,class=test_data$Endpoint)
+confusionMatrix(table(actual = test_data$Endpoint, predicted = C5_predictions))
+
+C5_predictions_prob <- predict(C5.model, newdata = test_data, type="prob")[,2]
+ROCit_obj_test <- rocit(score=C5_predictions_prob, class=test_data$Endpoint)
 ROCit_obj_test$AUC
-

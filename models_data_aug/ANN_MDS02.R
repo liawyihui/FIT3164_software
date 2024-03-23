@@ -1,4 +1,4 @@
-setwd("D:/FIT3164_software/models")
+setwd("D:/FIT3164_software/models_data_aug")
 # loading the packages needed for the assignment/tasks
 library(dplyr)
 library(tidyr)
@@ -26,17 +26,13 @@ library(doMC)
 library(ROCit)
 
 # reading the csv file required and creating individual data by setting a seed (my Student ID)
-#df <- read.csv("lymphedema_dataset.csv")
-DataTable <- read.csv("Lymph_dataset_raw.csv")
-#set.seed(123456)
+df <- read.csv("Lymph_dataset_raw.csv")
 
-#-------------------------------------------------------------------------------
-# Select variables + endpoint
-Table1 <- DataTable %>%
+Table1 <- df %>%
   select(-c("id", "opd", "nam.y", "lnn","int", "le"))
-  #select(-c("id", "opd", "nam.y", "tax", "lnn","axi","int", "che", "fx", "Gy", "recon", "le"))
+#select(-c("id", "opd", "nam.y", "tax", "lnn","axi","int", "che", "fx", "Gy", "recon", "le"))
 
-Table1$Endpoint <- factor(DataTable$le)
+Table1$Endpoint <- factor(df$le)
 
 # Exclude the Endpoint variable before normalizing
 independent_variables <- setdiff(names(Table1), "Endpoint")
@@ -44,34 +40,36 @@ independent_variables <- setdiff(names(Table1), "Endpoint")
 # Normalize independent variables
 Table1[, independent_variables] <- scale(Table1[, independent_variables])
 
-randomseed <- 1165# 365# 1675#
+randomseed <- 1165# 365# 1675# 
 
 set.seed(randomseed)
-   
-# Split the data into training and testing sets (e.g., 80% training and 20% testing)
+
+### ANN ###
 split_index <- createDataPartition(y = Table1$Endpoint, p = 0.8, list = FALSE)
 train_data <- Table1[split_index, ]
 test_data <- Table1[-split_index, ]
 
-# Fit the logistic regression model on the training data
-lr.model <- glm(Endpoint~., family = "binomial", data = train_data)
-# Predict the binary response on the test data
-lr_predictions <- predict(lr.model, newdata = test_data, type = "response")
-# Convert predictions to binary (0 or 1)
-lr_predictions_binary <- ifelse(lr_predictions > 0.5, 1, 0)
+control <- trainControl(method="repeatedcv", number=10, repeats=3)
+# train the model
+registerDoMC(cores=6)
+ann.model <- train(Endpoint~., data=train_data, method="pcaNNet", trControl=control, tuneLength=5)
+
+ann_predictions <- predict(ann.model, newdata = test_data, type="prob")
+
+ann_predictions_binary <- ifelse(ann_predictions[,1] > 0.5, 0, 1)
 
 # Calculate accuracy
-accuracy <- mean(lr_predictions_binary == test_data$Endpoint)
+ann_accuracy <- mean(ann_predictions_binary == test_data$Endpoint)
 
 # Print the accuracy
-cat("Accuracy:", accuracy, "\n")
+cat("ANN Accuracy:", ann_accuracy, "\n")
 
 # AUC, sensitivity and specificity
 #source("my.prediction.stats.R")
-#lymp_test <- factor(test_data$Endpoint, levels = c(0, 1))
-#my.pred.stats(lr_predictions_binary, lymp_test)
-confusionMatrix(table(actual = test_data$Endpoint, predicted = lr_predictions_binary))
+#lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
+#my.pred.stats(tree_predictions_binary, lymp_test)
 
-ROCit_obj_test <- rocit(score=lr_predictions,class=test_data$Endpoint)
+confusionMatrix(table(actual = test_data$Endpoint, predicted = ann_predictions_binary))
+
+ROCit_obj_test <- rocit(score=ann_predictions_binary, class=test_data$Endpoint)
 ROCit_obj_test$AUC
-

@@ -1,4 +1,4 @@
-setwd("D:/FIT3164_software/models")
+setwd("D:/FIT3164_software/models_data_aug")
 # loading the packages needed for the assignment/tasks
 library(dplyr)
 library(tidyr)
@@ -74,4 +74,3 @@ confusionMatrix(table(actual = test_data$Endpoint, predicted = lr_predictions_bi
 
 ROCit_obj_test <- rocit(score=lr_predictions,class=test_data$Endpoint)
 ROCit_obj_test$AUC
-
