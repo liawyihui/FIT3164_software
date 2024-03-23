@@ -24,6 +24,7 @@ library(dplyr)
 library(purrr)
 library(doMC)
 library(ROCit)
+library(smotefamily)
 
 # reading the csv file required and creating individual data by setting a seed (my Student ID)
 df <- read.csv("Lymph_dataset_raw.csv")
@@ -49,6 +50,12 @@ split_index <- createDataPartition(y = Table1$Endpoint, p = 0.8, list = FALSE)
 train_data <- Table1[split_index, ]
 test_data <- Table1[-split_index, ]
 
+# Resampling training dataset
+train_smote <- SMOTE(train_data[, -which(colnames(Table1) == "Endpoint")], train_data$Endpoint, K=5)
+train_data <- train_smote$data
+train_data$class <- factor(train_data$class)
+names(train_data)[names(train_data) == "class"] <- "Endpoint"
+
 tree.model <- rpart(Endpoint~., data = train_data)
 
 # Predict the binary response on the test data
@@ -65,7 +72,7 @@ cat("Decision Tree Accuracy:", tree_accuracy, "\n")
 #lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
 #my.pred.stats(tree_predictions_binary, lymp_test)
 
-confusionMatrix(table(actual = test_data$Endpoint, predicted = tree_predictions))
+confusionMatrix(tree_predictions, test_data$Endpoint, positive = "1")
 
 tree_predictions_prob <- predict(tree.model, newdata = test_data)[,2]
 ROCit_obj_test <- rocit(score=tree_predictions_prob, class=test_data$Endpoint)

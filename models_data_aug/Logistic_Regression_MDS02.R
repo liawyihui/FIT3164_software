@@ -24,11 +24,11 @@ library(dplyr)
 library(purrr)
 library(doMC)
 library(ROCit)
+library(smotefamily)
 
 # reading the csv file required and creating individual data by setting a seed (my Student ID)
 #df <- read.csv("lymphedema_dataset.csv")
 DataTable <- read.csv("Lymph_dataset_raw.csv")
-#set.seed(123456)
 
 #-------------------------------------------------------------------------------
 # Select variables + endpoint
@@ -53,6 +53,12 @@ split_index <- createDataPartition(y = Table1$Endpoint, p = 0.8, list = FALSE)
 train_data <- Table1[split_index, ]
 test_data <- Table1[-split_index, ]
 
+# Resampling training dataset
+train_smote <- SMOTE(train_data[, -which(colnames(Table1) == "Endpoint")], train_data$Endpoint, K=5)
+train_data <- train_smote$data
+train_data$class <- factor(train_data$class)
+names(train_data)[names(train_data) == "class"] <- "Endpoint"
+
 # Fit the logistic regression model on the training data
 lr.model <- glm(Endpoint~., family = "binomial", data = train_data)
 # Predict the binary response on the test data
@@ -70,7 +76,7 @@ cat("Accuracy:", accuracy, "\n")
 #source("my.prediction.stats.R")
 #lymp_test <- factor(test_data$Endpoint, levels = c(0, 1))
 #my.pred.stats(lr_predictions_binary, lymp_test)
-confusionMatrix(table(actual = test_data$Endpoint, predicted = lr_predictions_binary))
+confusionMatrix(factor(lr_predictions_binary), test_data$Endpoint, positive = "1")
 
 ROCit_obj_test <- rocit(score=lr_predictions,class=test_data$Endpoint)
 ROCit_obj_test$AUC

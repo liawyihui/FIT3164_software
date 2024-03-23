@@ -24,6 +24,7 @@ library(dplyr)
 library(purrr)
 library(doMC)
 library(ROCit)
+library(smotefamily)
 
 # reading the csv file required and creating individual data by setting a seed (my Student ID)
 df <- read.csv("Lymph_dataset_raw.csv")
@@ -49,6 +50,12 @@ split_index <- createDataPartition(y = Table1$Endpoint, p = 0.8, list = FALSE)
 train_data <- Table1[split_index, ]
 test_data <- Table1[-split_index, ]
 
+# Resampling training dataset
+train_smote <- SMOTE(train_data[, -which(colnames(Table1) == "Endpoint")], train_data$Endpoint, K=5)
+train_data <- train_smote$data
+train_data$class <- factor(train_data$class)
+names(train_data)[names(train_data) == "class"] <- "Endpoint"
+
 control <- trainControl(method="repeatedcv", number=10, repeats=3)
 # train the model
 registerDoMC(cores=6)
@@ -69,7 +76,7 @@ cat("ANN Accuracy:", ann_accuracy, "\n")
 #lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
 #my.pred.stats(tree_predictions_binary, lymp_test)
 
-confusionMatrix(table(actual = test_data$Endpoint, predicted = ann_predictions_binary))
+confusionMatrix(ann_predictions_binary, test_data$Endpoint, positive = "1")
 
 ROCit_obj_test <- rocit(score=ann_predictions_binary, class=test_data$Endpoint)
 ROCit_obj_test$AUC
