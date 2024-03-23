@@ -71,5 +71,5 @@ cat("ANN Accuracy:", ann_accuracy, "\n")
 
 confusionMatrix(factor(ann_predictions_binary), test_data$Endpoint, positive = "1")
 
-ROCit_obj_test <- rocit(score=ann_predictions_binary, class=test_data$Endpoint)
+ROCit_obj_test <- rocit(score=ann_predictions[,2], class=test_data$Endpoint)
 ROCit_obj_test$AUC
