@@ -66,7 +66,7 @@ cat("C5.0 Accuracy:", C5_accuracy, "\n")
 #lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
 #my.pred.stats(C5_predictions_binary, lymp_test)
 
-confusionMatrix(table(actual = test_data$Endpoint, predicted = C5_predictions))
+confusionMatrix(C5_predictions, test_data$Endpoint, positive = "1")
 
 C5_predictions_prob <- predict(C5.model, newdata = test_data, type="prob")[,2]
 ROCit_obj_test <- rocit(score=C5_predictions_prob, class=test_data$Endpoint)

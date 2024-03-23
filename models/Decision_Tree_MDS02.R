@@ -65,7 +65,7 @@ cat("Decision Tree Accuracy:", tree_accuracy, "\n")
 #lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
 #my.pred.stats(tree_predictions_binary, lymp_test)
 
-confusionMatrix(table(actual = test_data$Endpoint, predicted = tree_predictions))
+confusionMatrix(tree_predictions, test_data$Endpoint, positive = "1")
 
 tree_predictions_prob <- predict(tree.model, newdata = test_data)[,2]
 ROCit_obj_test <- rocit(score=tree_predictions_prob, class=test_data$Endpoint)

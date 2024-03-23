@@ -110,7 +110,7 @@ cutoff <- Table_cutoff$Cutoff[which.max(Table_cutoff$Balanced_Accuracy)]
 #-------------------------------------------------------------------------------
 # Confusion matrix and model performance in Test
   Table22 <- table(factor(pred_test,union), factor(test$Endpoint,union))
-  ConfMat_test <- confusionMatrix(Table22)
+  ConfMat_test <- confusionMatrix(Table22, positive="1")
   Performance_test <- setDT(as.data.frame(ConfMat_test$byClass), keep.rownames = TRUE)[]
   colnames(Performance_test) <- c("Parameter", "Value")
   Performance_test

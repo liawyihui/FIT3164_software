@@ -70,7 +70,7 @@ cat("Accuracy:", accuracy, "\n")
 #source("my.prediction.stats.R")
 #lymp_test <- factor(test_data$Endpoint, levels = c(0, 1))
 #my.pred.stats(lr_predictions_binary, lymp_test)
-confusionMatrix(table(actual = test_data$Endpoint, predicted = lr_predictions_binary))
+confusionMatrix(factor(lr_predictions_binary), test_data$Endpoint, positive = "1")
 
 ROCit_obj_test <- rocit(score=lr_predictions,class=test_data$Endpoint)
 ROCit_obj_test$AUC

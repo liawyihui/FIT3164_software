@@ -106,7 +106,7 @@ mean(pred_train == train$Endpoint)
 #-------------------------------------------------------------------------------
 # Confusion matrix and model performance in Test
 Table22 <- table(pred_test, test$Endpoint)
-ConfMat_test <- confusionMatrix(Table22)
+ConfMat_test <- confusionMatrix(Table22, positive = "1")
 Performance_test <- setDT(as.data.frame(ConfMat_test$byClass), keep.rownames = TRUE)[]
 colnames(Performance_test) <- c("Parameter", "Value")
 Performance_test
