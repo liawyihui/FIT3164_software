@@ -1,4 +1,4 @@
-setwd("D:/FIT3164_software/test")
+setwd("D:/FIT3164_software/models")
 # loading the packages needed for the assignment/tasks
 library(dplyr)
 library(tidyr)

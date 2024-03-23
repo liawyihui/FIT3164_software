@@ -1,4 +1,4 @@
-setwd("D:/FIT3164_software/test")
+setwd("D:/FIT3164_software/models")
 # loading the packages needed for the assignment/tasks
 library(dplyr)
 library(tidyr)
@@ -24,7 +24,6 @@ library(dplyr)
 library(purrr)
 library(doMC)
 library(ROCit)
-library(xlsx)
 
 #-------------------------------------------------------------------------------
 # Read data excel file
@@ -54,14 +53,14 @@ test <- Table1[-in_rows, ]
 control <- trainControl(method="repeatedcv", number=10, repeats=3)
 # train the model
 registerDoMC(cores=6)
-LRmodel <- train(Endpoint~., data=train, method="LogitBoost", trControl=control, tuneLength=5)
+DTmodel <- train(Endpoint~., data=train, method="rpart", trControl=control, tuneLength=5)
 
 
 #-------------------------------------------------------------------------------
 # Find Cut-off value for probability to maximize balanced accuracy
 
 # Get probability
-pred_all_prob <- as.data.frame(LRmodel %>% predict(Table1, type = "prob"))
+pred_all_prob <- as.data.frame(DTmodel %>% predict(Table1, type = "prob"))
 
 Table_cutoff <- data.frame( "Cutoff"             = seq(0.01, 1, by= 0.01),
                             "Balanced_Accuracy"  = 0)    
@@ -77,9 +76,9 @@ cutoff <- Table_cutoff$Cutoff[which.max(Table_cutoff$Balanced_Accuracy)]
 
 #-------------------------------------------------------------------------------
 # Make prediction on test set 
-pred_train_prob <- as.data.frame(LRmodel %>% predict(train, type = "prob"))
-pred_test_prob <- as.data.frame(LRmodel %>% predict(test, type = "prob"))
-pred_all_prob <- as.data.frame(LRmodel %>% predict(Table1, type = "prob"))
+pred_train_prob <- as.data.frame(DTmodel %>% predict(train, type = "prob"))
+pred_test_prob <- as.data.frame(DTmodel %>% predict(test, type = "prob"))
+pred_all_prob <- as.data.frame(DTmodel %>% predict(Table1, type = "prob"))
 
 pred_train <- as.factor(ifelse(pred_train_prob$`1`>cutoff,"1","0"))
 pred_test <- as.factor(ifelse(pred_test_prob$`1`>cutoff,"1","0"))
@@ -116,8 +115,8 @@ mean(pred_test == test$Endpoint)
 
 #-------------------------------------------------------------------------------  
 # Estimate Descriptor importance
-DescImportance <- data.frame(Descriptor = row.names(varImp(LRmodel, scale=TRUE)$importance),
-                             Value = varImp(LRmodel, scale=TRUE)$importance$X0)
+DescImportance <- data.frame(Descriptor = row.names(varImp(DTmodel, scale=TRUE)$importance),
+                             Value = varImp(DTmodel, scale=TRUE)$importance)
 colnames(DescImportance) <- c("Descriptor", "Value")
 DescImportance <- DescImportance[order(DescImportance$Value, decreasing = TRUE),]; DescImportance
 

@@ -1,4 +1,4 @@
-setwd("D:/FIT3164_software/test")
+setwd("D:/FIT3164_software/models")
 # loading the packages needed for the assignment/tasks
 library(dplyr)
 library(tidyr)
@@ -9,6 +9,7 @@ library(corrplot)
 library(rpart)
 library(caret) # confusion matrix
 library(tree) # for Decision Tree
+library(C50) # For C5.0
 library(e1071) # for Naive Bayes and Support Vector Machines
 library(randomForest) # for Random Forest
 library(adabag) # for Bagging and Boosting
@@ -44,32 +45,29 @@ randomseed <- 1165# 365# 1675#
 
 set.seed(randomseed)
 
-### ANN ###
+### Decision Tree ###
 split_index <- createDataPartition(y = Table1$Endpoint, p = 0.8, list = FALSE)
 train_data <- Table1[split_index, ]
 test_data <- Table1[-split_index, ]
 
-control <- trainControl(method="repeatedcv", number=10, repeats=3)
-# train the model
-registerDoMC(cores=6)
-ann.model <- train(Endpoint~., data=train_data, method="pcaNNet", trControl=control, tuneLength=5)
+C5.model <- C5.0(Endpoint~., data = train_data)
 
-ann_predictions <- predict(ann.model, newdata = test_data, type="prob")
-
-ann_predictions_binary <- ifelse(ann_predictions[,1] > 0.5, 0, 1)
+# Predict the binary response on the test data
+C5_predictions <- predict(C5.model, test_data, type="class")
 
 # Calculate accuracy
-ann_accuracy <- mean(ann_predictions_binary == test_data$Endpoint)
+C5_accuracy <- mean(C5_predictions == test_data$Endpoint)
 
 # Print the accuracy
-cat("ANN Accuracy:", ann_accuracy, "\n")
+cat("C5.0 Accuracy:", C5_accuracy, "\n")
 
 # AUC, sensitivity and specificity
 #source("my.prediction.stats.R")
 #lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
-#my.pred.stats(tree_predictions_binary, lymp_test)
+#my.pred.stats(C5_predictions_binary, lymp_test)
 
-confusionMatrix(table(actual = test_data$Endpoint, predicted = ann_predictions_binary))
+confusionMatrix(table(actual = test_data$Endpoint, predicted = C5_predictions))
 
-ROCit_obj_test <- rocit(score=ann_predictions_binary, class=test_data$Endpoint)
+C5_predictions_prob <- predict(C5.model, newdata = test_data, type="prob")[,2]
+ROCit_obj_test <- rocit(score=C5_predictions_prob, class=test_data$Endpoint)
 ROCit_obj_test$AUC
