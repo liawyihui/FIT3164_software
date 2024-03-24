@@ -62,8 +62,8 @@ model <- xgboost(
   data = dtrain, 
   eta = 1,                 # Learning rate
   nthread = 2,             # Number of threads to use for parallelism
-  nrounds = 2,             # Number of boosting rounds
-  objective = "binary:logistic"  # Objective function
+  nrounds = 100,             # Number of boosting rounds
+  objective = "binary:logistic",  # Objective function
 )
 
 # Make predictions on test data
