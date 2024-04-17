@@ -1,4 +1,3 @@
-setwd("D:/FIT3164_software/models_data_aug")
 # loading the packages needed for the assignment/tasks
 library(dplyr)
 library(tidyr)
@@ -24,8 +23,6 @@ library(dplyr)
 library(purrr)
 library(doMC)
 library(ROCit)
-library(smotefamily)
-library(ROSE)
 
 # reading the csv file required and creating individual data by setting a seed (my Student ID)
 df <- read.csv("Lymph_dataset_raw.csv")
@@ -46,27 +43,32 @@ randomseed <- 1165# 365# 1675#
 
 set.seed(randomseed)
 
-### RF ###
+### ANN ###
 split_index <- createDataPartition(y = Table1$Endpoint, p = 0.8, list = FALSE)
 train_data <- Table1[split_index, ]
 test_data <- Table1[-split_index, ]
 
-# Oversampling training dataset
-#train_smote <- SMOTE(train_data[, -which(colnames(Table1) == "Endpoint")], train_data$Endpoint, K=5)
-#train_data <- train_smote$data
-#train_data$class <- factor(train_data$class)
-#names(train_data)[names(train_data) == "class"] <- "Endpoint"
-
-undersample_data <- ovun.sample(Endpoint~., data=train_data, p=0.45, seed=1165, method="under")$data
 control <- trainControl(method="repeatedcv", number=10, repeats=3)
-rf.model <- train(Endpoint~., data=undersample_data, method="rf", trControl=control, tuneLength=5)
+# train the model
+registerDoMC(cores=6)
+ann.model <- train(Endpoint~., data=train_data, method="pcaNNet", trControl=control, tuneLength=5)
 
-rf_predictions <- predict(rf.model , test_data, type="prob")
-rf_predictions_binary <- ifelse(rf_predictions[,1] >= 0.5, 0, 1)
-accuracy <- mean(rf_predictions_binary == test_data$Endpoint)
-cat("Random Forest Accuracy:", accuracy, "\n")
+ann_predictions <- predict(ann.model, newdata = test_data, type="prob")
 
-confusionMatrix(factor(rf_predictions_binary), test_data$Endpoint, positive = "1")
+ann_predictions_binary <- ifelse(ann_predictions[,1] > 0.5, 0, 1)
 
-ROCit_obj_test <- rocit(score=rf_predictions[,2], class=test_data$Endpoint)
+# Calculate accuracy
+ann_accuracy <- mean(ann_predictions_binary == test_data$Endpoint)
+
+# Print the accuracy
+cat("ANN Accuracy:", ann_accuracy, "\n")
+
+# AUC, sensitivity and specificity
+#source("my.prediction.stats.R")
+#lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
+#my.pred.stats(tree_predictions_binary, lymp_test)
+
+confusionMatrix(factor(ann_predictions_binary), test_data$Endpoint, positive = "1")
+
+ROCit_obj_test <- rocit(score=ann_predictions[,2], class=test_data$Endpoint)
 ROCit_obj_test$AUC

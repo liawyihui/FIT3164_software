@@ -1,4 +1,3 @@
-setwd("D:/FIT3164_software/models")
 # loading the packages needed for the assignment/tasks
 library(dplyr)
 library(tidyr)
@@ -24,6 +23,7 @@ library(dplyr)
 library(purrr)
 library(doMC)
 library(ROCit)
+library(xlsx)
 
 #-------------------------------------------------------------------------------
 # Read data excel file
@@ -37,7 +37,7 @@ Table1 <- DataTable %>%
 
 Table1$Endpoint <- factor(DataTable$le)
 
-randomseed <- 1165# 365# 1675#
+randomseed <- 1165# 365# 1675# 
 
 
 set.seed(randomseed)
@@ -53,18 +53,14 @@ test <- Table1[-in_rows, ]
 control <- trainControl(method="repeatedcv", number=10, repeats=3)
 # train the model
 registerDoMC(cores=6)
-C50model <- train(Endpoint~., data=train, method="C5.0", trControl=control, tuneLength=5)
-# summarize the model
-print(C50model)
-# save model for later use
-save(C50model, file= paste(DataFolder,"/C50model.Rdata", sep = ""))
+LRmodel <- train(Endpoint~., data=train, method="LogitBoost", trControl=control, tuneLength=5)
 
 
 #-------------------------------------------------------------------------------
 # Find Cut-off value for probability to maximize balanced accuracy
 
 # Get probability
-pred_all_prob <- as.data.frame(C50model %>% predict(Table1, type = "prob"))
+pred_all_prob <- as.data.frame(LRmodel %>% predict(Table1, type = "prob"))
 
 Table_cutoff <- data.frame( "Cutoff"             = seq(0.01, 1, by= 0.01),
                             "Balanced_Accuracy"  = 0)    
@@ -80,9 +76,9 @@ cutoff <- Table_cutoff$Cutoff[which.max(Table_cutoff$Balanced_Accuracy)]
 
 #-------------------------------------------------------------------------------
 # Make prediction on test set 
-pred_train_prob <- as.data.frame(C50model %>% predict(train, type = "prob"))
-pred_test_prob <- as.data.frame(C50model %>% predict(test, type = "prob"))
-pred_all_prob <- as.data.frame(C50model %>% predict(Table1, type = "prob"))
+pred_train_prob <- as.data.frame(LRmodel %>% predict(train, type = "prob"))
+pred_test_prob <- as.data.frame(LRmodel %>% predict(test, type = "prob"))
+pred_all_prob <- as.data.frame(LRmodel %>% predict(Table1, type = "prob"))
 
 pred_train <- as.factor(ifelse(pred_train_prob$`1`>cutoff,"1","0"))
 pred_test <- as.factor(ifelse(pred_test_prob$`1`>cutoff,"1","0"))
@@ -119,8 +115,8 @@ mean(pred_test == test$Endpoint)
 
 #-------------------------------------------------------------------------------  
 # Estimate Descriptor importance
-DescImportance <- data.frame(Descriptor = row.names(varImp(C50model, scale=TRUE)$importance),
-                             Value = varImp(C50model, scale=TRUE)$importance)
+DescImportance <- data.frame(Descriptor = row.names(varImp(LRmodel, scale=TRUE)$importance),
+                             Value = varImp(LRmodel, scale=TRUE)$importance$X0)
 colnames(DescImportance) <- c("Descriptor", "Value")
 DescImportance <- DescImportance[order(DescImportance$Value, decreasing = TRUE),]; DescImportance
 

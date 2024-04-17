@@ -1,4 +1,3 @@
-setwd("D:/FIT3164_software/models_data_aug")
 # loading the packages needed for the assignment/tasks
 library(dplyr)
 library(tidyr)
@@ -24,7 +23,6 @@ library(dplyr)
 library(purrr)
 library(doMC)
 library(ROCit)
-library(smotefamily)
 
 # reading the csv file required and creating individual data by setting a seed (my Student ID)
 df <- read.csv("Lymph_dataset_raw.csv")
@@ -35,45 +33,32 @@ Table1 <- df %>%
 
 Table1$Endpoint <- factor(df$le)
 
-# Exclude the Endpoint variable before normalizing
-independent_variables <- setdiff(names(Table1), "Endpoint")
-
-# Normalize independent variables
-Table1[, independent_variables] <- scale(Table1[, independent_variables])
-
 randomseed <- 1165# 365# 1675# 
 
 set.seed(randomseed)
 
-### Decision Tree ###
+### SVM ###
 split_index <- createDataPartition(y = Table1$Endpoint, p = 0.8, list = FALSE)
 train_data <- Table1[split_index, ]
 test_data <- Table1[-split_index, ]
 
-# Resampling training dataset
-train_smote <- SMOTE(train_data[, -which(colnames(Table1) == "Endpoint")], train_data$Endpoint, K=5)
-train_data <- train_smote$data
-train_data$class <- factor(train_data$class)
-names(train_data)[names(train_data) == "class"] <- "Endpoint"
-
-tree.model <- rpart(Endpoint~., data = train_data)
+svm.train <- svm(Endpoint~., data = train_data, kernel = 'radial')
 
 # Predict the binary response on the test data
-tree_predictions <- predict(tree.model, test_data, type="class")
+svm_predictions <- predict(svm.train, test_data)
 
-# Calculate accuracy
-tree_accuracy <- mean(tree_predictions == test_data$Endpoint)
+# Calculate accuracy for the SVM model
+svm_accuracy <- mean(svm_predictions == test_data$Endpoint)
 
-# Print the accuracy
-cat("Decision Tree Accuracy:", tree_accuracy, "\n")
+# Print the SVM accuracy
+cat("SVM Accuracy:", svm_accuracy, "\n")
 
 # AUC, sensitivity and specificity
-#source("my.prediction.stats.R")
-#lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
-#my.pred.stats(tree_predictions_binary, lymp_test)
+confusionMatrix(table(actual = test_data$Endpoint, predicted = svm_predictions))
 
-confusionMatrix(tree_predictions, test_data$Endpoint, positive = "1")
+svm.test <- predict(svm.train, test_data)
+svm.pred <- prediction(as.numeric(svm.test), test_data$Endpoint)
+svm.perf <- performance(svm.pred, "tpr", "fpr")
+svm.auc <- performance(svm.pred, "auc")
+cat("AUC for Support Vector Machines: ", as.numeric(svm.auc@y.values))
 
-tree_predictions_prob <- predict(tree.model, newdata = test_data)[,2]
-ROCit_obj_test <- rocit(score=tree_predictions_prob, class=test_data$Endpoint)
-ROCit_obj_test$AUC

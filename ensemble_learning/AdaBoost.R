@@ -1,4 +1,3 @@
-setwd("D:/FIT3164_software/ensemble_learning")
 # loading the packages needed for the assignment/tasks
 library(dplyr)
 library(tidyr)
