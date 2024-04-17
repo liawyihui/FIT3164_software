@@ -73,7 +73,9 @@ binary_predictions <- ifelse(predictions > 0.5, 1, 0)
 accuracy <- mean(binary_predictions == test_data$Endpoint)
 cat("Accuracy:", accuracy, "\n")
 
-confusionMatrix(factor(binary_predictions), factor(test_data$Endpoint), positive = "1")
+performance <- confusionMatrix(factor(binary_predictions), factor(test_data$Endpoint), positive = "1")
+performance
+performance$byClass["F1"]
 
 ROCit_obj_test <- rocit(score=predictions, class=test_data$Endpoint)
 ROCit_obj_test$AUC

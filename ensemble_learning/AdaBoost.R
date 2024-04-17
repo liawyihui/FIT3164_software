@@ -58,7 +58,9 @@ ada_predictions_binary <- ifelse(ada_predictions[,1] >= 0.5, 0, 1)
 accuracy <- mean(ada_predictions_binary == test_data$Endpoint)
 cat("AdaBoost Accuracy:", accuracy, "\n")
 
-confusionMatrix(factor(ada_predictions_binary), test_data$Endpoint, positive = "1")
+performance <- confusionMatrix(factor(ada_predictions_binary), test_data$Endpoint, positive = "1")
+performance
+performance$byClass["F1"]
 
 ROCit_obj_test <- rocit(score=ada_predictions[,2], class=test_data$Endpoint)
 ROCit_obj_test$AUC

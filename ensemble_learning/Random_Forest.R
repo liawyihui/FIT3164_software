@@ -56,7 +56,9 @@ rf_predictions_binary <- ifelse(rf_predictions[,1] >= 0.5, 0, 1)
 accuracy <- mean(rf_predictions_binary == test_data$Endpoint)
 cat("Random Forest Accuracy:", accuracy, "\n")
 
-confusionMatrix(factor(rf_predictions_binary), test_data$Endpoint, positive = "1")
+performance <- confusionMatrix(factor(rf_predictions_binary), test_data$Endpoint, positive = "1")
+performance
+performance$byClass["F1"]
 
 ROCit_obj_test <- rocit(score=rf_predictions[,2], class=test_data$Endpoint)
 ROCit_obj_test$AUC
@@ -65,7 +67,10 @@ train_predictions <- predict(rf.model, newdata = train_data, type="prob")
 train_predictions_binary <- ifelse(train_predictions[,1] > 0.5, 0, 1)
 accuracy <- mean(train_predictions_binary == train_data$Endpoint)
 cat("Random Forest Accuracy:", accuracy, "\n")
-confusionMatrix(factor(train_predictions_binary), train_data$Endpoint, positive = "1")
+
+performance <- confusionMatrix(factor(train_predictions_binary), train_data$Endpoint, positive = "1")
+performance
+performance$byClass["F1"]
 
 ROCit_obj_test <- rocit(score=train_predictions[,2], class=train_data$Endpoint)
 ROCit_obj_test$AUC

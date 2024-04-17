@@ -62,7 +62,9 @@ stack_predictions_binary <- ifelse(stack_predictions_prob > 0.5, "X0", "X1")
 stack_accuracy <- mean(stack_predictions_binary == test_data$Endpoint)
 cat("Stack Ensemble Accuracy:", stack_accuracy, "\n")
 
-confusionMatrix(factor(stack_predictions_binary), factor(test_data$Endpoint), positive = "X1")
+performance <- confusionMatrix(factor(stack_predictions_binary), factor(test_data$Endpoint), positive = "X1")
+performance
+performance$byClass["F1"]
 
 stack_predictions_prob_modified <- 1 - stack_predictions_prob
 ROCit_obj_test <- rocit(score=stack_predictions_prob_modified, class=test_data$Endpoint)

@@ -56,7 +56,9 @@ rus_predictions_binary <- ifelse(rus_predictions > 0.5, 1, 0)
 accuracy <- mean(rus_predictions_binary == test_data$Endpoint)
 cat("RUSBoost Accuracy:", accuracy, "\n")
 
-confusionMatrix(factor(rus_predictions_binary), test_data$Endpoint, positive = "1")
+performance <- confusionMatrix(factor(rus_predictions_binary), test_data$Endpoint, positive = "1")
+performance
+performance$byClass["F1"]
 
 ROCit_obj_test <- rocit(score=rus_predictions, class=test_data$Endpoint)
 ROCit_obj_test$AUC
