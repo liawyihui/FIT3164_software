@@ -83,10 +83,9 @@ accuracy <- mean(lr_predictions_binary == test_data$Endpoint)
 cat("Accuracy:", accuracy, "\n")
 
 # AUC, sensitivity and specificity
-#source("my.prediction.stats.R")
-#lymp_test <- factor(test_data$Endpoint, levels = c(0, 1))
-#my.pred.stats(lr_predictions_binary, lymp_test)
-confusionMatrix(factor(lr_predictions_binary), test_data$Endpoint, positive = "1")
+performance <- confusionMatrix(factor(lr_predictions_binary), test_data$Endpoint, positive = "1")
+performance
+performance$byClass["F1"]
 
 ROCit_obj_test <- rocit(score=lr_predictions,class=test_data$Endpoint)
 ROCit_obj_test$AUC

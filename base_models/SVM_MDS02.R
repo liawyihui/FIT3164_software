@@ -54,7 +54,9 @@ svm_accuracy <- mean(svm_predictions == test_data$Endpoint)
 cat("SVM Accuracy:", svm_accuracy, "\n")
 
 # AUC, sensitivity and specificity
-confusionMatrix(table(actual = test_data$Endpoint, predicted = svm_predictions))
+performance <- confusionMatrix(table(actual = test_data$Endpoint, predicted = svm_predictions))
+performance
+performance$byClass["F1"]
 
 svm.test <- predict(svm.train, test_data)
 svm.pred <- prediction(as.numeric(svm.test), test_data$Endpoint)

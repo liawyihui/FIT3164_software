@@ -64,11 +64,9 @@ ann_accuracy <- mean(ann_predictions_binary == test_data$Endpoint)
 cat("ANN Accuracy:", ann_accuracy, "\n")
 
 # AUC, sensitivity and specificity
-#source("my.prediction.stats.R")
-#lymp_test <- factor(test_data$lymphedema, levels = c(0, 1))
-#my.pred.stats(tree_predictions_binary, lymp_test)
-
-confusionMatrix(factor(ann_predictions_binary), test_data$Endpoint, positive = "1")
+performance <- confusionMatrix(factor(ann_predictions_binary), test_data$Endpoint, positive = "1")
+performance
+performance$byClass["F1"]
 
 ROCit_obj_test <- rocit(score=ann_predictions[,2], class=test_data$Endpoint)
 ROCit_obj_test$AUC
