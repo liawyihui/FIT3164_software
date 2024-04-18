@@ -25,6 +25,7 @@ library(doMC)
 library(ROCit)
 library(smotefamily)
 library(ROSE)
+library(ebmc)
 
 # reading the csv file required and creating individual data by setting a seed (my Student ID)
 df <- read.csv("Lymph_dataset_raw.csv")
@@ -45,45 +46,31 @@ randomseed <- 1165# 365# 1675#
 
 set.seed(randomseed)
 
-### RF ###
 split_index <- createDataPartition(y = Table1$Endpoint, p = 0.8, list = FALSE)
 train_data <- Table1[split_index, ]
 test_data <- Table1[-split_index, ]
 
-minority_data <- train_data[train_data$Endpoint == "1", ]
-majority_data <- train_data[train_data$Endpoint == "0", ]
-majority_size <- nrow(majority_data)
-minority_size <- nrow(minority_data)
+# Perform oversampling of the minority class using SMOTE
+oversampled_train_data <- SMOTE(train_data[, -which(colnames(Table1) == "Endpoint")], train_data$Endpoint, K=5)
+oversampled_train_data <- oversampled_train_data$data
+oversampled_train_data$class <- factor(oversampled_train_data$class)
+names(oversampled_train_data)[names(oversampled_train_data) == "class"] <- "Endpoint"
 
-balanced_datasets <- list()
-start_pos <- 1
-while(TRUE) {
-    if ((majority_size - start_pos) >= minority_size) {
-        subset <- majority_data[start_pos:(start_pos + minority_size),]
-        subset <- rbind(subset, minority_data)
-        balanced_datasets <- append(balanced_datasets, list(subset))
-        start_pos <- start_pos + minority_size + 1
-    } else {
-        subset <- majority_data[start_pos:majority_size,]
-        subset <- rbind(subset, minority_data)
-        balanced_datasets <- append(balanced_datasets, list(subset))
-        break
-    }
-}
+# Perform undersampling of the majority class using editing algorithm
+undersample_train_data <- ovun.sample(Endpoint~., data=train_data, p=0.5, seed=1165, method="under")$data
 
-for (data in balanced_datasets){
-    #control <- trainControl(method="repeatedcv", number=10, repeats=3)
-    #ada.model <- train(Endpoint~., data=train_data, method="AdaBoost.M1", trControl=control, tuneLength=5)
-    ada.model <- boosting(Endpoint~., data = data, boos = TRUE, mfinal = 100)
-    ada_predictions <- predict(ada.model , test_data)$prob
-    ada_predictions_binary <- ifelse(ada_predictions[,1] >= 0.5, 0, 1)
-    accuracy <- mean(ada_predictions_binary == test_data$Endpoint)
-    cat("AdaBoost Accuracy:", accuracy, "\n")
+combined_train_data <- rbind(oversampled_train_data, undersample_train_data)
 
-    performance <- confusionMatrix(factor(ada_predictions_binary), test_data$Endpoint, positive = "1")
-    print(performance)
-    print(performance$byClass["F1"])
+model <- rus(Endpoint~., combined_train_data, size=20, alg = "rf", ir = 1, rf.ntree = 50, svm.ker = "radial")
 
-    ROCit_obj_test <- rocit(score=ada_predictions[,2], class=test_data$Endpoint)
-    print(ROCit_obj_test$AUC)
-}
+rus_predictions <- predict(model , test_data, type="prob")
+rus_predictions_binary <- ifelse(rus_predictions > 0.5, 1, 0)
+accuracy <- mean(rus_predictions_binary == test_data$Endpoint)
+cat("RUSBoost Accuracy:", accuracy, "\n")
+
+performance <- confusionMatrix(factor(rus_predictions_binary), test_data$Endpoint, positive = "1")
+performance
+performance$byClass["F1"]
+
+ROCit_obj_test <- rocit(score=rus_predictions, class=test_data$Endpoint)
+ROCit_obj_test$AUC
