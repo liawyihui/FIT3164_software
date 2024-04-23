@@ -25,9 +25,10 @@ library(doMC)
 library(ROCit)
 library(smotefamily)
 library(ROSE)
+library(h2o)
 
 # reading the csv file required and creating individual data by setting a seed (my Student ID)
-df <- read.csv("Lymph_dataset_raw.csv")
+df <- read.csv("Lymph_dataset.csv")
 
 Table1 <- df %>%
   select(-c("id", "opd", "nam.y", "lnn","int", "le"))
@@ -45,7 +46,6 @@ randomseed <- 1165# 365# 1675#
 
 set.seed(randomseed)
 
-### RF ###
 split_index <- createDataPartition(y = Table1$Endpoint, p = 0.8, list = FALSE)
 train_data <- Table1[split_index, ]
 test_data <- Table1[-split_index, ]
@@ -64,28 +64,49 @@ while(TRUE) {
         balanced_datasets <- append(balanced_datasets, list(subset))
         start_pos <- start_pos + minority_size + 1
     } else {
-        subset <- majority_data[start_pos:majority_size,]
+        diff <- (minority_size - (majority_size - start_pos))
+        subset <- majority_data[(start_pos - diff):majority_size,]
         subset <- rbind(subset, minority_data)
         balanced_datasets <- append(balanced_datasets, list(subset))
         break
     }
 }
 
+models <- list()
 for (data in balanced_datasets){
     #control <- trainControl(method="repeatedcv", number=10, repeats=3)
     #ada.model <- train(Endpoint~., data=train_data, method="AdaBoost.M1", trControl=control, tuneLength=5)
-    ada.model <- boosting(Endpoint~., data = data, boos = TRUE, mfinal = 100)
-    ada_predictions <- predict(ada.model , test_data)$prob
-    ada_predictions_binary <- ifelse(ada_predictions[,1] >= 0.5, 0, 1)
-    accuracy <- mean(ada_predictions_binary == test_data$Endpoint)
-    cat("AdaBoost Accuracy:", accuracy, "\n")
-
+    data <- as.h2o(data)
+    ada.model <- h2o.gbm(
+                  y = "Endpoint",
+                  training_frame = data,
+                  distribution = "bernoulli",
+                  ntrees = 200,
+                  max_depth = 1000,
+                  min_rows = 2,
+                  learn_rate = 0.1,
+                  nfolds = 10,
+                  keep_cross_validation_predictions = TRUE,
+                  seed = 1)
+    test_h2o <- as.h2o(test_data)
+    predictions <- h2o.predict(ada.model, newdata = test_h2o)
+    ada_predictions_binary <- as.vector(ifelse(predictions[,3] >= 0.5, 0, 1))
+    accuracy <- mean(test_data$Endpoint == ada_predictions_binary)
+    print(accuracy)
     performance <- confusionMatrix(factor(ada_predictions_binary), test_data$Endpoint, positive = "1")
     print(performance)
-    print(performance$byClass["F1"])
-
-    ROCit_obj_test <- rocit(score=ada_predictions[,2], class=test_data$Endpoint)
-    print(ROCit_obj_test$AUC)
+    models <- append(models, list(ada.model))
 }
 
+model <- h2o.stackedEnsemble(y="Endpoint", training_frame = as.h2o(balanced_datasets[[31]]), model_id = NULL, validation_frame = NULL, base_models = models)
+test_h2o <- as.h2o(test_data)
+predictions <- h2o.predict(model, newdata = test_h2o)
+ada_predictions_binary <- as.vector(ifelse(predictions[,3] >= 0.5, 0, 1))
+accuracy <- mean(test_data$Endpoint == ada_predictions_binary)
 
+performance <- confusionMatrix(factor(ada_predictions_binary), test_data$Endpoint, positive = "1")
+print(performance)
+print(performance$byClass["F1"])
+
+ROCit_obj_test <- rocit(score=as.vector(predictions[,2]), class=test_data$Endpoint)
+print(ROCit_obj_test$AUC)
