@@ -27,7 +27,7 @@ library(caretEnsemble)
 library(xgboost)
 
 # reading the csv file required and creating individual data by setting a seed (my Student ID)
-df <- read.csv("Lymph_dataset_raw.csv")
+df <- read.csv("Lymph_dataset.csv")
 
 Table1 <- df %>%
   select(-c("id", "opd", "nam.y", "lnn","int", "le"))

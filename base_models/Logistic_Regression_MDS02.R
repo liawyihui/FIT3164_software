@@ -26,7 +26,7 @@ library(ROCit)
 
 # reading the csv file required and creating individual data by setting a seed (my Student ID)
 #df <- read.csv("lymphedema_dataset.csv")
-DataTable <- read.csv("Lymph_dataset_raw.csv")
+DataTable <- read.csv("Lymph_dataset.csv")
 #set.seed(123456)
 
 #-------------------------------------------------------------------------------

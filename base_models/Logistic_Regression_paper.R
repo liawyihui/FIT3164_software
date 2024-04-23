@@ -27,7 +27,7 @@ library(xlsx)
 
 #-------------------------------------------------------------------------------
 # Read data excel file
-DataTable <- read.csv("Lymph_dataset_raw.csv")
+DataTable <- read.csv("Lymph_dataset.csv")
 
 #-------------------------------------------------------------------------------
 # Select variables + endpoint

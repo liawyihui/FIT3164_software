@@ -17,7 +17,7 @@ library(pROC)
 
 # reading the csv file required and creating individual data by setting a seed (my Student ID)
 rm(list = ls())
-df <- read.csv("lymphedema_dataset.csv")
+df <- read.csv("Lymph_dataset.csv")
 set.seed(123456)
 
 # Split the data into training and testing sets (e.g., 70% training and 30% testing)
