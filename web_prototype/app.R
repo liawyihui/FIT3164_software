@@ -9,16 +9,18 @@ library(shinythemes)
       "Lymphedema Prediction",
       tabPanel("Prediction",
                sidebarPanel(
-                 tags$h3("Input:"),
+                 tags$h3("Upload dataset"),
+                 fileInput("DataFile", "Upload Excel dataset file to predict Lymphedema:",
+                           multiple = FALSE,
+                           accept = c(".xls",".xlsx")),  
                  textInput("txt1", "Given Name:", ""), # txt1 will be sent to the server
                  textInput("txt2", "Surname:", ""), # txt2 will be sent to the server
-                 
+    
                ), # sidebarPanel
                mainPanel(
-                            h1("Header 1"),
-                            
-                            h4("Output 1"),
-                            verbatimTextOutput("txtout"), # txtout is generated from the server
+                 tags$label(h3("Output")),
+                 verbatimTextOutput("txtout"), # txtout is generated from the server
+                 tableOutput('tabledata') # Prediction results table
 
                ) # mainPanel
                
