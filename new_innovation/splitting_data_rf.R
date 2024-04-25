@@ -94,7 +94,7 @@ for (data in balanced_datasets){
     models <- append(models, list(ada.model))
 }
 
-model <- h2o.stackedEnsemble(y="Endpoint", training_frame = as.h2o(balanced_datasets[[31]]), model_id = NULL, validation_frame = NULL, base_models = models)
+model <- h2o.stackedEnsemble(y="Endpoint", training_frame = as.h2o(balanced_datasets[[3]]), model_id = NULL, validation_frame = NULL, base_models = models)
 test_h2o <- as.h2o(test_data)
 predictions <- h2o.predict(model, newdata = test_h2o)
 ada_predictions_binary <- as.vector(ifelse(predictions[,3] >= 0.5, 0, 1))
