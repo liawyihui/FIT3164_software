@@ -61,7 +61,7 @@ undersample_train_data <- ovun.sample(Endpoint~., data=train_data, p=0.5, seed=1
 
 combined_train_data <- rbind(oversampled_train_data, undersample_train_data)
 
-model <- rus(Endpoint~., combined_train_data, size=20, alg = "rf", ir = 1, rf.ntree = 50, svm.ker = "radial")
+model <- rus(Endpoint~., combined_train_data, size=50, alg = "rf", ir = 1, rf.ntree = 500)
 
 rus_predictions <- predict(model , test_data, type="prob")
 rus_predictions_binary <- ifelse(rus_predictions > 0.5, 1, 0)
