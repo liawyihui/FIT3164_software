@@ -28,7 +28,6 @@ library(ROSE)
 library(h2o)
 library(caretEnsemble)
 library(ebmc)
-setwd("D:/FIT3164_software/new_innovation")
 
 # reading the csv file required and creating individual data by setting a seed (my Student ID)
 df <- read.csv("Lymph_dataset.csv")
