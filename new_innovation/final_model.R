@@ -31,7 +31,7 @@ library(ebmc)
 df <- read.csv("Lymph_dataset.csv")
 
 Table1 <- df %>%
-  select(-c("id", "opd", "nam.y", "lnn","int", "le"))
+  select(-c("id", "opd", "nam.y","int", "le"))
 #select(-c("id", "opd", "nam.y", "tax", "lnn","axi","int", "che", "fx", "Gy", "recon", "le"))
 
 Table1$Endpoint <- factor(df$le)
@@ -63,7 +63,7 @@ combined_train_data <- rbind(oversampled_train_data, undersample_train_data)
 
 model <- rus(Endpoint~., combined_train_data, size=50, alg = "rf", ir = 1, rf.ntree = 500)
 
-rus_predictions <- predict(model , test_data, type="prob")
+rus_predictions <- predict(my_model , test_data, type="prob")
 rus_predictions_binary <- ifelse(rus_predictions > 0.5, 1, 0)
 accuracy <- mean(rus_predictions_binary == test_data$Endpoint)
 cat("RUSBoost Accuracy:", accuracy, "\n")
