@@ -55,9 +55,11 @@ oversampled_train_data <- SMOTE(train_data[, -which(colnames(Table1) == "Endpoin
 oversampled_train_data <- oversampled_train_data$data
 oversampled_train_data$class <- factor(oversampled_train_data$class)
 names(oversampled_train_data)[names(oversampled_train_data) == "class"] <- "Endpoint"
+oversampled_train_data <- oversampled_train_data[oversampled_train_data$Endpoint == "1", ]
 
 # Perform undersampling of the majority class using editing algorithm
 undersample_train_data <- ovun.sample(Endpoint~., data=train_data, p=0.5, seed=1165, method="under")$data
+undersample_train_data <- undersample_train_data[undersample_train_data$Endpoint == "0", ]
 
 combined_train_data <- rbind(oversampled_train_data, undersample_train_data)
 
