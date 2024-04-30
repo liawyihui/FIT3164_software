@@ -32,7 +32,7 @@ setwd("D:/FIT3164_software/new_innovation")
 df <- read.csv("Lymph_dataset.csv")
 
 Table1 <- df %>%
-  select(-c("id", "opd", "nam.y", "lnn","int", "le"))
+  select(-c("id", "opd", "nam.y","int", "le"))
 #select(-c("id", "opd", "nam.y", "tax", "lnn","axi","int", "che", "fx", "Gy", "recon", "le"))
 
 Table1$Endpoint <- factor(df$le)
@@ -66,7 +66,7 @@ combined_train_data <- rbind(oversampled_train_data, undersample_train_data)
 # size_range <- c(10, 30, 50)
 # rf.ntree_range <- c(100, 500, 1000)
 
-model <- rus(Endpoint~., combined_train_data, size = 30, alg = "rf", ir = 1, rf.ntree = 1000)
+model <- rus(Endpoint~., combined_train_data, size = 50, alg = "rf", ir = 1, rf.ntree = 1000)
 
 rus_predictions <- predict(model , test_data, type="prob")
 rus_predictions_binary <- ifelse(rus_predictions > 0.5, 1, 0)
