@@ -63,7 +63,7 @@ combined_train_data <- rbind(oversampled_train_data, undersample_train_data)
 
 model <- rus(Endpoint~., combined_train_data, size=30, alg = "rf", ir = 1, rf.ntree = 100)
 
-rus_predictions <- predict(model , test_data, type="prob")
+rus_predictions <- predict(model, test_data, type="prob")
 rus_predictions_binary <- ifelse(rus_predictions > 0.5, 1, 0)
 accuracy <- mean(rus_predictions_binary == test_data$Endpoint)
 cat("RUSBoost Accuracy:", accuracy, "\n")
