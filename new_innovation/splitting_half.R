@@ -33,7 +33,7 @@ library(ebmc)
 df <- read.csv("Lymph_dataset.csv")
 
 Table1 <- df %>%
-  select(-c("id", "opd", "nam.y", "lnn","int", "le"))
+  select(-c("id", "opd", "nam.y","int", "le"))
 #select(-c("id", "opd", "nam.y", "tax", "lnn","axi","int", "che", "fx", "Gy", "recon", "le"))
 
 Table1$Endpoint <- factor(df$le)
@@ -101,32 +101,32 @@ splitted_datasets <- append(splitted_datasets, list(majority_subset2_smote))
 
 models <- list()
 for (data in splitted_datasets){
-    # model <- rus(Endpoint~., data, size=20, alg = "rf", ir = 5, rf.ntree = 50, svm.ker = "radial")
+    model <- rus(Endpoint~., data, size=20, alg = "rf", ir = 5, rf.ntree = 50, svm.ker = "radial")
 
-    # rus_predictions <- predict(model , test_data, type="prob")
-    # rus_predictions_binary <- ifelse(rus_predictions > 0.5, 1, 0)
-    # accuracy <- mean(rus_predictions_binary == test_data$Endpoint)
-    # cat("RUSBoost Accuracy:", accuracy, "\n")
+    rus_predictions <- predict(model , test_data, type="prob")
+    rus_predictions_binary <- ifelse(rus_predictions > 0.5, 1, 0)
+    accuracy <- mean(rus_predictions_binary == test_data$Endpoint)
+    cat("RUSBoost Accuracy:", accuracy, "\n")
     
-    # performance <- confusionMatrix(factor(rus_predictions_binary), test_data$Endpoint, positive = "1")
-    # print(performance)
-    # print(performance$byClass["F1"])
-
-    # ROCit_obj_test <- rocit(score=rus_predictions, class=test_data$Endpoint)
-    # print(ROCit_obj_test$AUC)
-
-    control <- trainControl(method="repeatedcv", number=10, repeats=3)
-    rf.model <- train(Endpoint~., data=data, method="rf", trControl=control, tuneLength=5)
-
-    rf_predictions <- predict(rf.model , test_data, type="prob")
-    rf_predictions_binary <- ifelse(rf_predictions[,1] >= 0.5, 0, 1)
-    accuracy <- mean(rf_predictions_binary == test_data$Endpoint)
-    cat("Random Forest Accuracy:", accuracy, "\n")
-
-    performance <- confusionMatrix(factor(rf_predictions_binary), test_data$Endpoint, positive = "1")
+    performance <- confusionMatrix(factor(rus_predictions_binary), test_data$Endpoint, positive = "1")
     print(performance)
     print(performance$byClass["F1"])
 
-    ROCit_obj_test <- rocit(score=rf_predictions[,2], class=test_data$Endpoint)
+    ROCit_obj_test <- rocit(score=rus_predictions, class=test_data$Endpoint)
     print(ROCit_obj_test$AUC)
+
+    # control <- trainControl(method="repeatedcv", number=10, repeats=3)
+    # rf.model <- train(Endpoint~., data=data, method="rf", trControl=control, tuneLength=5)
+
+    # rf_predictions <- predict(rf.model , test_data, type="prob")
+    # rf_predictions_binary <- ifelse(rf_predictions[,1] >= 0.5, 0, 1)
+    # accuracy <- mean(rf_predictions_binary == test_data$Endpoint)
+    # cat("Random Forest Accuracy:", accuracy, "\n")
+
+    # performance <- confusionMatrix(factor(rf_predictions_binary), test_data$Endpoint, positive = "1")
+    # print(performance)
+    # print(performance$byClass["F1"])
+
+    # ROCit_obj_test <- rocit(score=rf_predictions[,2], class=test_data$Endpoint)
+    # print(ROCit_obj_test$AUC)
 }
