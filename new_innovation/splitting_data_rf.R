@@ -31,8 +31,7 @@ library(h2o)
 df <- read.csv("Lymph_dataset.csv")
 
 Table1 <- df %>%
-  select(-c("id", "opd", "nam.y","int", "le"))
-#select(-c("id", "opd", "nam.y", "tax", "lnn","axi","int", "che", "fx", "Gy", "recon", "le"))
+  select(-c("le"))
 
 Table1$Endpoint <- factor(df$le)
 
