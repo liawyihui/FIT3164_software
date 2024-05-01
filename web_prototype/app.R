@@ -5,7 +5,7 @@ library(readxl)
 library(ggplot2)
 
 # loading trained model
-load("LR_MDS02.RData")
+load("final_model.RData")
 
 # define UI
 ui <- fluidPage(
@@ -145,6 +145,8 @@ server <- function(input, output) {
       stop("Unsupported file format.")
     }
 
+    validate(need(input$feature %in% colnames(DataTable), "Please ensure the selected feature is in the uploaded file."))
+
     feature_names <- c(
       "age" = "Age",
       "sex" = "Gender",
@@ -176,11 +178,15 @@ server <- function(input, output) {
       "Sodium.serum" = "Sodium Serum"
     )
 
-    if (input$feature == "sex" || input$feature == "recon" || input$feature == "che" || input$feature == "axi") {
+    if (input$feature == "sex" || input$feature == "recon" || input$feature == "che" || input$feature == "axi" || input$feature == "tax") {
       if (input$feature == "sex") {
         DataTable$sex <- ifelse(DataTable$sex == 1, "Male", "Female")
         custom_colour <- c("Male" = "#2d50ff", "Female" = "#ffa0d4")
         plots <- ggplot(DataTable, aes(x = "", fill = sex))
+      } else if (input$feature == "recon") {
+        DataTable$recon <- ifelse(DataTable$recon == 0, "No Reconstruction", ifelse(DataTable$recon == 1, "TRAM flat", "Implant"))
+        custom_colour <- c("No Reconstruction" = "#bd87ff", "TRAM flat" = "#ffa0a0", "Implant" = "#deff09")
+        plots <- ggplot(DataTable, aes(x = "", fill = recon))
       } else if (input$feature == "che") {
         DataTable$che <- ifelse(DataTable$che == 1, "Yes", "No")
         custom_colour <- c("Yes" = "#bd87ff", "No" = "#ffa0a0")
@@ -189,6 +195,10 @@ server <- function(input, output) {
         DataTable$axi <- ifelse(DataTable$axi == 1, "Yes", "No")
         custom_colour <- c("Yes" = "#bd87ff", "No" = "#ffa0a0")
         plots <- ggplot(DataTable, aes(x = "", fill = axi))
+      } else if (input$feature == "tax") {
+        DataTable$tax <- ifelse(DataTable$tax == 0, "No taxane", ifelse(DataTable$tax == 1, "Type 1", "Type 2"))
+        custom_colour <- c("No taxane" = "#bd87ff", "Type 1" = "#ffa0a0", "Type 2" = "#deff09")
+        plots <- ggplot(DataTable, aes(x = "", fill = tax))
       }
 
       plots <- plots + geom_bar(width = 1, color = "black") +
@@ -200,7 +210,7 @@ server <- function(input, output) {
         theme_void() +
         scale_fill_manual(values = custom_colour) +
         theme(text = element_text(size = 16, face = "bold"), plot.title = element_text(hjust = 0.5)) +
-        geom_text(aes(label = paste0(format(round((..count..) / sum(..count..) * 100, 2), nsmall = 2), "%")), stat = "count", position = position_stack(vjust = 0.5), size = 5)
+        geom_text(aes(label = paste0(format(round((..count..) / sum(..count..) * 100, 2), nsmall = 2), "%")), stat = "count", position = position_stack(vjust = 0.5), size = 4.5)
     } else {
       plots <- ggplot(DataTable, aes_string(x = input$feature)) +
         geom_histogram(color = "#000000", fill = "#6d85ff") +
@@ -217,7 +227,6 @@ server <- function(input, output) {
   })
 
   # predicting lymphedema for the selected patient
-  # to be added
 
   # output section
   output$txtout <- renderText({

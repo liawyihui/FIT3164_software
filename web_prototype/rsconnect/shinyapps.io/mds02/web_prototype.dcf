@@ -5,6 +5,6 @@ account: mds02
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 11868976
-bundleId: 8543964
+bundleId: 8564840
 url: https://mds02.shinyapps.io/web_prototype/
 version: 1
