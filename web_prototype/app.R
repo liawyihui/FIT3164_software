@@ -1,8 +1,11 @@
 # loading necessary libraries
 library(shiny)
 library(shinythemes)
+library(shinydashboard)
 library(readxl)
 library(ggplot2)
+library(ggpubr)
+library(ggpmisc)
 
 # loading trained model
 load("final_model.RData")
@@ -42,7 +45,15 @@ ui <- fluidPage(
         mainPanel(
           tags$label(h3("Output")),
           verbatimTextOutput("txtout"), # txtout is generated from the server
-          tableOutput("tabledata") # Prediction results table
+          tableOutput("tabledata"), # Prediction results table
+          p(strong("All patients result"),
+            style = "font-size:24px; text-align:justify; color:black; background-color:papayawhip; padding:15px; border-radius:10px"
+          ),
+          p(strong("Lymphedema predicted score of the selected Patient ID:"),
+            style = "text-align:left; color:black; padding:0px; border-radius:0px"
+          ),
+          tableOutput("pred.single"),
+          DT::dataTableOutput("pred.lymphedema"),
         )
       ), # mainPanel
       selectInput(
@@ -108,7 +119,7 @@ server <- function(input, output) {
   # uploading dataset
   datasetInput <- reactive({
     inFile <- input$DataFile
-    DataTable <- read.csv(inFile$datapath, sheet = 1)
+    DataTable <- read.csv(inFile$datapath)
     return(DataTable)
   })
 
@@ -127,6 +138,57 @@ server <- function(input, output) {
     },
     contentType = "ExcelFile"
   )
+
+  # predicting lymphedema for the user-input dataset
+  output$pred.lymphedema <- DT::renderDataTable(
+    {
+      validate(need(input$DataFile, "Missing data file!"))
+
+      inFile <- input$DataFile
+      DataTable <- read.csv(inFile$datapath)
+      Pred.prob <- predict(model, DataTable, type = "prob")
+      OutputTable <- data.frame(
+        Patient.ID = as.factor(DataTable$ID),
+        Predicted.Score = round(Pred.prob, 3),
+        Predicted.Lymphedema = ifelse(Pred.prob > 0.5, "Yes", "No")
+      )
+    },
+    selection = "single"
+  )
+
+
+
+  # predicting lymphedema for the selected patient
+  output$pred.single <- renderValueBox({
+    validate(need(input$DataFile, "Missing data file!"))
+
+    inFile <- input$DataFile
+    DataTable <- read.csv(inFile$datapath)
+    DataTable$Patient.ID <- as.character(DataTable$ID)
+
+    Pred.prob <- predict(model, DataTable, type = "prob")
+    Pred.Table <- data.frame(
+      Patient.ID = as.factor(DataTable$ID),
+      Predicted.Score = round(Pred.prob, 3),
+      Predicted.Lymphedema = ifelse(Pred.prob > 0.5, "Yes", "No")
+    )
+
+    RowIndex <- input$pred.lymphedema_rows_selected
+    Score <- ifelse(is.na(RowIndex), "NA", Pred.Table$Predicted.Score[RowIndex])
+    DisplayScore <- paste("Score =", ifelse(is.numeric(RowIndex), Score, "NA"), sep = " ")
+
+    color_lymph <- ifelse(!is.numeric(Score), "blue",
+      ifelse(Score > 0.5, "red", "green")
+    )
+
+    subtitle_lymph <- ifelse(!is.numeric(Score), "Patient ID not selected",
+      ifelse(Score <= 0.5, paste("Patient ID ", Pred.Table$Patient.ID[RowIndex], " has LOW risk of Lymphedema", sep = ""),
+        paste("Patient ID ", Pred.Table$Patient.ID[RowIndex], " has HIGH risk of Lymphedema", sep = "")
+      )
+    )
+
+    valueBox(DisplayScore, subtitle_lymph, color = color_lymph, width = 3)
+  })
 
   # Visualization of feature
   output$FeatureDistribution <- renderPlot({
@@ -225,8 +287,6 @@ server <- function(input, output) {
 
     return(plots)
   })
-
-  # predicting lymphedema for the selected patient
 
   # output section
   output$txtout <- renderText({
