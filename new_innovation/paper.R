@@ -51,19 +51,24 @@ train_data <- Table1[split_index, ]
 test_data <- Table1[-split_index, ]
 
 # Perform oversampling of the minority class using SMOTE
-oversampled_train_data <- SMOTE(train_data[, -which(colnames(Table1) == "Endpoint")], train_data$Endpoint, K=5)
+undersampled_train_data <- ovun.sample(Endpoint ~ ., 
+                                       data = train_data, 
+                                       N = nrow(train_data[train_data$Endpoint == "1", ]) * 4,
+                                       seed = 1165, 
+                                       method = "under")$data
+
+oversampled_train_data <- SMOTE(undersampled_train_data[, -which(colnames(Table1) == "Endpoint")], undersampled_train_data$Endpoint, K=5)
 oversampled_train_data <- oversampled_train_data$data
 oversampled_train_data$class <- factor(oversampled_train_data$class)
 names(oversampled_train_data)[names(oversampled_train_data) == "class"] <- "Endpoint"
-oversampled_train_data <- oversampled_train_data[oversampled_train_data$Endpoint == "1", ]
 
-# Perform undersampling of the majority class using editing algorithm
-undersample_train_data <- ovun.sample(Endpoint~., data=train_data, p=0.5, seed=1165, method="under")$data
-undersample_train_data <- undersample_train_data[undersample_train_data$Endpoint == "0", ]
+# # Perform undersampling of the majority class using editing algorithm
+# undersample_train_data <- ovun.sample(Endpoint~., data=train_data, p=0.5, seed=1165, method="under")$data
+# undersample_train_data <- undersample_train_data[undersample_train_data$Endpoint == "0", ]
 
-combined_train_data <- rbind(oversampled_train_data, undersample_train_data)
+#combined_train_data <- rbind(oversampled_train_data, undersample_train_data)
 
-model <- rus(Endpoint~., combined_train_data, size=50, alg = "rf", ir = 1, rf.ntree = 500)
+model <- rus(Endpoint~., oversampled_train_data, size=50, alg = "rf", ir = 1, rf.ntree = 500)
 
 rus_predictions <- predict(model , test_data, type="prob")
 rus_predictions_binary <- ifelse(rus_predictions > 0.5, 1, 0)
