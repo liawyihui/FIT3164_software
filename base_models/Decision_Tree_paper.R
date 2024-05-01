@@ -31,7 +31,8 @@ DataTable <- read.csv("Lymph_dataset.csv")
 #-------------------------------------------------------------------------------
 # Select variables + endpoint
 Table1 <- DataTable %>%
-  select(-c("id", "opd", "nam.y", "lnn","int", "le"))
+  select(-c("lnn", "le"))
+  #select(-c("id", "opd", "nam.y", "lnn","int", "le"))
 #select(-c("id", "opd", "nam.y", "tax", "lnn","axi","int", "che", "fx", "Gy", "recon", "le"))
 
 Table1$Endpoint <- factor(DataTable$le)
