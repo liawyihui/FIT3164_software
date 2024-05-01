@@ -73,6 +73,52 @@ performance$byClass["F1"]
 
 ROCit_obj_test <- rocit(score=rus_predictions, class=test_data$Endpoint)
 ROCit_obj_test$AUC
+
+importance_list <- list()
+for (i in 1:length(model$weakLearners)) {
+    # Calculate variable importance for the ith weak learner
+    importance <- varImp(model$weakLearners[[i]], scale = FALSE)
+    
+    # Convert importance to a data frame
+    var_imp_df <- data.frame(variable = rownames(importance), score = importance[,1], stringsAsFactors = FALSE)
+    
+    # Convert score to numeric
+    var_imp_df$score <- as.numeric(var_imp_df$score)
+
+    # Store variable importance scores in the list
+    importance_list[[i]] <- var_imp_df
+}
+
+mean_scores <- list()
+for (variable in unique(importance_list[[1]]$variable)) {
+    # Extract scores for the current variable from all weak learners
+    scores <- sapply(importance_list, function(df) {
+        df[df$variable == variable, "score"]
+    })
+    
+    # Calculate the mean score for the current variable
+    mean_score <- mean(scores, na.rm = TRUE)
+    
+    # Store the mean score
+    mean_scores[[variable]] <- mean_score
+}
+
+# Create a data frame with variable names and mean importance scores
+mean_var_imp_df <- data.frame(variable = names(mean_scores), score = unlist(mean_scores))
+
+# Sort by variable name
+mean_var_imp_df <- mean_var_imp_df[order(mean_var_imp_df$score, decreasing = TRUE),]
+
+# Output the mean variable importance data frame
+print(mean_var_imp_df)
+
+write.xlsx(mean_var_imp_df, file = "variance_importance.xlsx")
+
+# importance <- varImp(model$weakLearners[[1]], scale=FALSE)
+# var_imp_df <- data.frame(cbind(variable = rownames(importance), score = importance[,1]))
+# var_imp_df$score <- as.double(var_imp_df$score)
+# var_imp_df[order(var_imp_df$score,decreasing = TRUE),]
+
 #write.xlsx(data.frame(FPR = ROCit_obj_test$FPR, TPR = ROCit_obj_test$TPR), file = "ROC_test.xlsx")
 
 # train_sizes <- seq(0.1, 0.9, by = 0.1)
