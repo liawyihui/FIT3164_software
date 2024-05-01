@@ -227,11 +227,13 @@ server <- function(input, output) {
   output$table <- renderTable({
     performance_test <- read_xlsx("performance_test.xlsx")
 
+    performance_test$Value <- format(performance_test$Value, digits = 4)
+
     performance_test
   })
 
   output$ROC <- renderPlot({
-    ROC_test <- read_xlsx("ROC_test. xlsx")
+    ROC_test <- read_xlsx("ROC_test.xlsx")
 
     p2 <- ggplot() +
       geom_line(data = ROC_test, aes(x = FPR, y = TPR), color = "red") +
