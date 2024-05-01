@@ -31,8 +31,7 @@ library(ebmc)
 df <- read.csv("Lymph_dataset.csv")
 
 Table1 <- df %>%
-  select(-c("id", "opd", "nam.y","int", "le"))
-#select(-c("id", "opd", "nam.y", "tax", "lnn","axi","int", "che", "fx", "Gy", "recon", "le"))
+  select(-c("le"))
 
 Table1$Endpoint <- factor(df$le)
 
@@ -81,3 +80,47 @@ performance$byClass["F1"]
 
 ROCit_obj_test <- rocit(score=rus_predictions, class=test_data$Endpoint)
 ROCit_obj_test$AUC
+
+# train_sizes <- seq(0.1, 0.9, by = 0.1)
+# train_errors <- rep(NA, length(train_sizes))
+# test_errors <- rep(NA, length(train_sizes))
+
+# for (i in seq_along(train_sizes)) {
+#   split_index <- createDataPartition(y = Table1$Endpoint, p = train_sizes[i], list = FALSE)
+#   train_data <- Table1[split_index, ]
+#   test_data <- Table1[-split_index, ]
+  
+#   undersampled_train_data <- ovun.sample(Endpoint ~ ., 
+#                                        data = train_data, 
+#                                        N = nrow(train_data[train_data$Endpoint == "1", ]) * 4,
+#                                        seed = 1165, 
+#                                        method = "under")$data
+
+#   oversampled_train_data <- SMOTE(undersampled_train_data[, -which(colnames(Table1) == "Endpoint")], undersampled_train_data$Endpoint, K=5)
+#   oversampled_train_data <- oversampled_train_data$data
+#   oversampled_train_data$class <- factor(oversampled_train_data$class)
+#   names(oversampled_train_data)[names(oversampled_train_data) == "class"] <- "Endpoint"
+
+#   # # Perform undersampling of the majority class using editing algorithm
+#   # undersample_train_data <- ovun.sample(Endpoint~., data=train_data, p=0.5, seed=1165, method="under")$data
+#   # undersample_train_data <- undersample_train_data[undersample_train_data$Endpoint == "0", ]
+
+#   #combined_train_data <- rbind(oversampled_train_data, undersample_train_data)
+
+#   # Train model on partial data
+#   partial_model <- rus(Endpoint~., oversampled_train_data, size=30, alg = "rf", ir = 1, rf.ntree = 100)
+  
+#   # Predict on training and test data
+#   partial_train_predictions <- predict(partial_model, train_data, type="prob")
+#   partial_train_predictions_binary <- ifelse(partial_train_predictions > 0.5, 1, 0)
+#   partial_test_predictions <- predict(partial_model, test_data, type="prob")
+#   partial_test_predictions_binary <- ifelse(partial_test_predictions > 0.5, 1, 0)
+  
+#   # Compute errors
+#   train_errors[i] <- 1 - mean(partial_train_predictions_binary == train_data$Endpoint)
+#   test_errors[i] <- 1 - mean(partial_test_predictions_binary == test_data$Endpoint)
+# }
+
+# plot(train_sizes, train_errors, type = "b", col = "blue", ylim = c(0, max(train_errors, test_errors)), xlab = "Training Size", ylab = "Error", main = "Learning Curves")
+# points(train_sizes, test_errors, type = "b", col = "red")
+# legend("topright", legend = c("Training Error", "Test Error"), col = c("blue", "red"), lty = 1, cex = 0.8)
