@@ -6,6 +6,7 @@ library(readxl)
 library(ggplot2)
 library(ggpubr)
 library(ggpmisc)
+library(ebmc)
 
 # loading trained model
 load("final_model.RData")
