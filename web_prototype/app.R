@@ -29,93 +29,173 @@ ui <- fluidPage(
   ),
   navbarPage(
     "Lymphedema Prediction",
-    tabPanel(
-      "Prediction",
-      fluidRow(
-        sidebarPanel(
-          tags$h3("Upload dataset"),
-          fileInput("DataFile", "Upload Excel dataset file to predict Lymphedema:",
-            multiple = FALSE,
-            accept = c(".xls", ".xlsx", ".csv")
-          ),
-          tags$h5("Format accepted: .xls, .xlsx, .csv"),
-          tags$strong("Template of dataset:"),
-          div(downloadButton("DownloadData", "Download"), style = "margin-bottom: 20px;"),
-        ), # sidebarPanel
-        mainPanel(
-          tags$label(h3("Output")),
-          verbatimTextOutput("txtout"), # txtout is generated from the server
-          tableOutput("tabledata"), # Prediction results table
-          p(strong("All patients result"),
-            style = "font-size:24px; text-align:justify; color:black; background-color:papayawhip; padding:15px; border-radius:10px"
-          ),
-          p(strong("Lymphedema predicted score of the selected Patient ID:"),
-            style = "text-align:left; color:black; padding:0px; border-radius:0px"
-          ),
-          tableOutput("pred.single"),
-          DT::dataTableOutput("pred.lymphedema"),
+    tabsetPanel(
+      id = "switcher",
+      tabPanel("Home",
+                 fluidRow(
+                   column(12, tags$h2("About Lymphedema"))
+                 ),
+                 fluidRow(
+                   column(6, p(style = "font-size: 17px; text-align: justify",
+                                "Lymphedema is a common condition that affects many breast cancer survivors.
+                                Lymphedema in breast cancer patients is swelling that occurs typically in one of the   
+                                arms, often as a result of cancer treatment such as surgery or radiation therapy
+                                which disrupts the drainage of lymph fluid by damaging or removing lymph nodes."),
+                             p(style = "font-size: 17px; text-align: justify",
+                                "While there is currently no known cure for lymphedema, various treatments and 
+                                strategies can help reduce symptoms, manage swelling, and improve quality of life for 
+                                patients. These may include compression therapy, physical therapy, exercise, skin care, 
+                                and in some cases, surgery. Early detection can also play a crucial role in 
+                                preventing the progression of lymphedema and minimizing its impact on 
+                                patients' lives.")),
+                   column(3, imageOutput("lymphedema_img")),
+                   column(3, imageOutput("lymphedema2_img"))
+                 ),
+                 fluidRow(
+                   column(12, tags$h2("3 Steps to Use Our Tool"))
+                 ),
+                 fluidRow(
+                   column(1, imageOutput("number1_img", height = "240px")),
+                   column(3, tags$h2("Input your Dataset"), 
+                             p(style = "font-size: 17px; text-align: justify",
+                                "Download the dataset template and fill in all necessary details for each patient.
+                                 Ensure completeness and accuracy of the data.")),
+                   column(1, imageOutput("number2_img", height = "240px")),
+                   column(3, tags$h2("Lymphedema Assessment"),
+                             p(style = "font-size: 17px; text-align: justify",
+                                "We evaluate the risk of lymphedema for each patient based on the dataset provided.")),
+                   column(1, imageOutput("number3_img", height = "240px")),
+                   column(3, tags$h2("Your Results"),
+                             p(style = "font-size: 17px; text-align: justify",
+                                "Results of the lymphedema risk assessment will be generated for each patient. 
+                                 These results will include individual risk scores or probabilities"))
+                 ),
+                 fluidRow(
+                   column(4, ""),
+                   column(4, actionButton("start_assess", "Start Assessment", style="font-size: 17px; background-color: #337ab7; border-color: #2e6da4; width: 100%")),
+                   column(4, "")
+                 )
+                 
+        ), # Navbar 1, tabPanel
+      tabPanel(
+        "Prediction",
+        fluidRow(
+          sidebarPanel(
+            tags$h3("Upload dataset"),
+            fileInput("DataFile", "Upload Excel dataset file to predict Lymphedema:",
+              multiple = FALSE,
+              accept = c(".xls", ".xlsx", ".csv")
+            ),
+            tags$h5("Format accepted: .xls, .xlsx, .csv"),
+            tags$strong("Template of dataset:"),
+            div(downloadButton("DownloadData", "Download"), style = "margin-bottom: 20px;"),
+          ), # sidebarPanel
+          mainPanel(
+            tags$label(h3("Output")),
+            verbatimTextOutput("txtout"), # txtout is generated from the server
+            tableOutput("tabledata"), # Prediction results table
+            p(strong("All patients result"),
+              style = "font-size:24px; text-align:justify; color:black; background-color:papayawhip; padding:15px; border-radius:10px"
+            ),
+            p(strong("Lymphedema predicted score of the selected Patient ID:"),
+              style = "text-align:left; color:black; padding:0px; border-radius:0px"
+            ),
+            tableOutput("pred.single"),
+            DT::dataTableOutput("pred.lymphedema"),
+          )
+        ), # mainPanel
+        selectInput(
+          inputId = "feature", "Select feature for visualization:",
+          c(
+            "--Select--" = "select",
+            "Age" = "age",
+            "Gender" = "sex",
+            "Number of Lymph Node Harvested" = "lnn",
+            "Taxane-based Chemotherapy" = "tax",
+            "Radiation Fraction" = "fx",
+            "Amount of Radiation (Gray)" = "Gy",
+            "Breast Reconstruction" = "recon",
+            "Chemotherapy" = "che",
+            "Axilla Radiation Therapy" = "axi",
+            "Platelets" = "PLT",
+            "Procalcitonin" = "PCT",
+            "White Blood Cells" = "WBC",
+            "Absolute Neutrophil Count" = "ANC",
+            "Red Blood Cell" = "RBC",
+            "Mean Platelet Volume" = "MPV",
+            "Eosinophil" = "Eosinophil",
+            "Basophil" = "Basophil",
+            "Monocyte" = "Monocyte",
+            "Hematocrit" = "Hct",
+            "Segmented Neutrophil" = "Segmented.neutrophil",
+            "Mean Corpuscular Hemoglobin Concentration" = "MCHC",
+            "Hemoglobin" = "Hb",
+            "Lymphocyte" = "Lymphocyte",
+            "Mean Corpuscular Volume" = "MCV",
+            "Mean Corpuscular Hemoglobin" = "MCH",
+            "Potassium Serum" = "Potassium.serum",
+            "Chloride Serum" = "Chloride.serum",
+            "Sodium Serum" = "Sodium.serum"
+          )
+        ),
+        plotOutput("FeatureDistribution") # Plot histogram
+      ), # Navbar 2, tabPanel
+      tabPanel(
+        "About Model",
+        fluidRow(
+          column(12, tags$h3("Model Performance"))
+        ),
+        fluidRow(
+          column(12, tableOutput("table"))
+        ),
+        fluidRow(
+          column(4, tags$h3("ROC Curve")),
+          column(4, tags$h3("____")),
+          column(4, tags$h3("____"))
+        ),
+        fluidRow(
+          column(4, plotOutput("ROC", height = "400px")),
+          column(4, tags$h3("")),
+          column(4, tags$h3(""))
         )
-      ), # mainPanel
-      selectInput(
-        inputId = "feature", "Select feature for visualization:",
-        c(
-          "--Select--" = "select",
-          "Age" = "age",
-          "Gender" = "sex",
-          "Number of Lymph Node Harvested" = "lnn",
-          "Taxane-based Chemotherapy" = "tax",
-          "Radiation Fraction" = "fx",
-          "Amount of Radiation (Gray)" = "Gy",
-          "Breast Reconstruction" = "recon",
-          "Chemotherapy" = "che",
-          "Axilla Radiation Therapy" = "axi",
-          "Platelets" = "PLT",
-          "Procalcitonin" = "PCT",
-          "White Blood Cells" = "WBC",
-          "Absolute Neutrophil Count" = "ANC",
-          "Red Blood Cell" = "RBC",
-          "Mean Platelet Volume" = "MPV",
-          "Eosinophil" = "Eosinophil",
-          "Basophil" = "Basophil",
-          "Monocyte" = "Monocyte",
-          "Hematocrit" = "Hct",
-          "Segmented Neutrophil" = "Segmented.neutrophil",
-          "Mean Corpuscular Hemoglobin Concentration" = "MCHC",
-          "Hemoglobin" = "Hb",
-          "Lymphocyte" = "Lymphocyte",
-          "Mean Corpuscular Volume" = "MCV",
-          "Mean Corpuscular Hemoglobin" = "MCH",
-          "Potassium Serum" = "Potassium.serum",
-          "Chloride Serum" = "Chloride.serum",
-          "Sodium Serum" = "Sodium.serum"
-        )
-      ),
-      plotOutput("FeatureDistribution") # Plot histogram
-    ), # Navbar 1, tabPanel
-    tabPanel(
-      "About Model",
-      fluidRow(
-        column(12, tags$h3("Model Performance"))
-      ),
-      fluidRow(
-        column(12, tableOutput("table"))
-      ),
-      fluidRow(
-        column(4, tags$h3("ROC Curve")),
-        column(4, tags$h3("____")),
-        column(4, tags$h3("____"))
-      ),
-      fluidRow(
-        column(4, plotOutput("ROC", height = "400px")),
-        column(4, tags$h3("")),
-        column(4, tags$h3(""))
-      )
-    ) # Navbar 2, tabPanel
+      ) # Navbar 3, tabPanel
+    ) # tabsetPanel
   ) # navbarPage
 ) # fluidPage
 
 # define server function
 server <- function(input, output) {
+  output$lymphedema_img <- renderImage({
+      list(src = "img/Lymphedema-early-detection.jpg",
+           width = "100%",
+           height = 380)
+  })
+    
+  output$lymphedema2_img <- renderImage({
+    list(src = "img/10434_2014_3518_Fig1_HTML.jpg",
+        width = "100%",
+        height = 380)
+  })
+    
+  output$number1_img <- renderImage({
+    list(src = "img/number1.png",
+          width = "100%")
+  })
+  
+  output$number2_img <- renderImage({
+    list(src = "img/number2.png",
+          width = "100%")
+  })
+  
+  output$number3_img <- renderImage({
+    list(src = "img/number3.png",
+          width = "100%")
+  })
+  
+  observeEvent(input$start_assess, {
+    updateTabsetPanel(inputId = "switcher", selected = "Prediction")
+  })
+
   # uploading dataset
   datasetInput <- reactive({
     inFile <- input$DataFile
