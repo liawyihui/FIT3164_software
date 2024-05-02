@@ -170,28 +170,28 @@ server <- function(input, output) {
       list(src = "img/Lymphedema-early-detection.jpg",
            width = "100%",
            height = 380)
-  })
+  }, deleteFile = FALSE)
     
   output$lymphedema2_img <- renderImage({
     list(src = "img/10434_2014_3518_Fig1_HTML.jpg",
         width = "100%",
         height = 380)
-  })
+  }, deleteFile = FALSE)
     
   output$number1_img <- renderImage({
     list(src = "img/number1.png",
           width = "100%")
-  })
+  }, deleteFile = FALSE)
   
   output$number2_img <- renderImage({
     list(src = "img/number2.png",
           width = "100%")
-  })
+  }, deleteFile = FALSE)
   
   output$number3_img <- renderImage({
     list(src = "img/number3.png",
           width = "100%")
-  })
+  }, deleteFile = FALSE)
   
   observeEvent(input$start_assess, {
     updateTabsetPanel(inputId = "switcher", selected = "Prediction")
