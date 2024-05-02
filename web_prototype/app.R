@@ -151,7 +151,7 @@ ui <- fluidPage(
         ),
         fluidRow(
           column(4, tags$h3("ROC Curve")),
-          column(4, tags$h3("Relative Variable Importance"))),
+          column(4, tags$h3("Relative Variable Importance")),
           column(4, tags$h3("____"))
         ),
         fluidRow(
