@@ -151,12 +151,12 @@ ui <- fluidPage(
         ),
         fluidRow(
           column(4, tags$h3("ROC Curve")),
-          column(4, tags$h3("____")),
+          column(4, tags$h3("Relative Variable Importance"))),
           column(4, tags$h3("____"))
         ),
         fluidRow(
-          column(4, plotOutput("ROC", height = "400px")),
-          column(4, tags$h3("")),
+          column(4, plotOutput("ROC", height = "450px")),
+          column(4, plotOutput("variable_impt", height = "450px")),
           column(4, tags$h3(""))
         )
       ) # Navbar 3, tabPanel
@@ -381,6 +381,20 @@ server <- function(input, output) {
 
     performance_test
   })
+
+  output$variable_impt <- renderPlot({
+      variable_impt <- read_xlsx("variance_importance.xlsx")
+      
+      p1 <- ggplot(variable_impt, aes(x = reorder(variable, +score), y=score)) + 
+      geom_bar(stat="identity", fill = "skyblue2") +
+      geom_text(aes(label = round(score, 1)), position = position_stack(vjust = 0.5), size = 3, colour = "black") +
+      labs(x = "", y = "Relative Importance") +
+      theme(text=element_text(size=14, face="bold"),
+            axis.text.x = element_text(angle = 0, hjust = 1, colour = "black")) +
+      coord_flip() # Horizontal bar plot
+      
+      p1 
+    })
 
   output$ROC <- renderPlot({
     ROC_test <- read_xlsx("ROC_test.xlsx")
