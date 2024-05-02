@@ -69,7 +69,7 @@ ui <- fluidPage(
                    column(3, tags$h2("Your Results"),
                              p(style = "font-size: 17px; text-align: justify",
                                 "Results of the lymphedema risk assessment will be generated for each patient. 
-                                 These results will include individual risk scores or probabilities"))
+                                 These results will include individual risk scores or probabilities."))
                  ),
                  fluidRow(
                    column(4, ""),
@@ -400,7 +400,8 @@ server <- function(input, output) {
     ROC_test <- read_xlsx("ROC_test.xlsx")
 
     p2 <- ggplot() +
-      geom_line(data = ROC_test, aes(x = FPR, y = TPR), color = "red") +
+      geom_line(data = ROC_test, aes(x = FPR, y = TPR), color = "blue") +
+      geom_abline(slope=1, intercept=0, color="red", linetype=2) +
       theme(text = element_text(size = 16, face = "bold")) +
       theme(axis.text.x = element_text(angle = 0, hjust = 1, colour = "black"))
 
