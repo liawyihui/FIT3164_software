@@ -22,6 +22,7 @@ ui <- fluidPage(
             }
            .tab-content {
               padding: 15px;
+              padding-top: 0px; !important
             }
            .navbar-brand{
               padding-left: 25px;
