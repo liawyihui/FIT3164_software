@@ -244,7 +244,7 @@ server <- function(input, output) {
   # uploading dataset
   datasetInput <- reactive({
     inFile <- input$DataFile
-    DataTable <- read.csv(inFile$datapath)
+    DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
     return(DataTable)
   })
 
@@ -253,13 +253,13 @@ server <- function(input, output) {
     datasetInput()
   })
 
-  # downloadable csv template of selected dataset
+  # downloadable xlsx template of selected dataset
   output$DownloadData <- downloadHandler(
     filename = function() {
-      paste("DataTemplate", "csv", sep = ".")
+      paste("DataTemplate", "xlsx", sep = ".")
     },
     content = function(file) {
-      file.copy("DataTemplate.csv", file)
+      file.copy("DataTemplate.xlsx", file)
     },
     contentType = "ExcelFile"
   )
@@ -270,7 +270,7 @@ server <- function(input, output) {
       validate(need(input$DataFile, "Missing data file!"))
 
       inFile <- input$DataFile
-      DataTable <- read.csv(inFile$datapath)
+      DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
 
       Normalized_DataTable <- DataTable
       # Exclude the Endpoint variable before normalizing
@@ -292,7 +292,7 @@ server <- function(input, output) {
     validate(need(input$DataFile, "Missing data file!"))
 
     inFile <- input$DataFile
-    DataTable <- read.csv(inFile$datapath)
+    DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
     DataTable$Patient.ID <- as.character(DataTable$ID)
 
     Normalized_DataTable <- DataTable
@@ -334,7 +334,7 @@ server <- function(input, output) {
     file_ext <- tools::file_ext(inFile$name)
 
     if (file_ext %in% c("xlsx", "xls")) {
-      DataTable <- read_excel(inFile$datapath)
+      DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
     } else if (file_ext == "csv") {
       DataTable <- read.csv(inFile$datapath)
     } else {
