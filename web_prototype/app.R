@@ -102,19 +102,20 @@ ui <- fluidPage(
         fluidRow(
           sidebarPanel(
             tags$h3("Upload dataset"),
-            fileInput("DataFile", "Upload Excel dataset file to predict Lymphedema:",
+            fileInput("DataFile", "Upload dataset file to predict Lymphedema:",
               multiple = FALSE,
               accept = c(".xls", ".xlsx", ".csv")
             ),
             tags$h5("Format accepted: .xls, .xlsx, .csv"),
             tags$strong("Template of dataset:"),
             div(downloadButton("DownloadData", "Download"), style = "margin-bottom: 20px;"),
+            tags$strong("Sample dataset:"),
+            div(downloadButton("SampleDataset", "Download"), style = "margin-bottom: 20px;"),
           ), # sidebarPanel
           mainPanel(
-            tags$label(h3("Output")),
             verbatimTextOutput("txtout"), # txtout is generated from the server
             tableOutput("tabledata"), # Prediction results table
-            p(strong("All patients result"),
+            p(strong("All Patients' Result"),
               style = "font-size:24px; text-align:justify; color:black; background-color:papayawhip; padding:15px; border-radius:10px"
             ),
             p(strong("Lymphedema predicted score of the selected Patient ID:"),
@@ -244,7 +245,16 @@ server <- function(input, output) {
   # uploading dataset
   datasetInput <- reactive({
     inFile <- input$DataFile
-    DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
+    file_ext <- tools::file_ext(inFile$name)
+    
+    if (file_ext %in% c("xlsx", "xls")) {
+      DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
+    } else if (file_ext == "csv") {
+      DataTable <- read.csv(inFile$datapath)
+    } else {
+      stop("Unsupported file format.")
+    }
+    
     return(DataTable)
   })
 
@@ -253,7 +263,7 @@ server <- function(input, output) {
     datasetInput()
   })
 
-  # downloadable xlsx template of selected dataset
+  # downloadable xlsx template of dataset
   output$DownloadData <- downloadHandler(
     filename = function() {
       paste("DataTemplate", "xlsx", sep = ".")
@@ -263,14 +273,33 @@ server <- function(input, output) {
     },
     contentType = "ExcelFile"
   )
+  
+  # downloadable xlsx sample dataset
+  output$SampleDataset <- downloadHandler(
+    filename = function() {
+      paste("SampleDataset", "xlsx", sep = ".")
+    },
+    content = function(file) {
+      file.copy("SampleDataset.xlsx", file)
+    },
+    contentType = "ExcelFile"
+  )
 
   # predicting lymphedema for the user-input dataset
   output$pred.lymphedema <- DT::renderDataTable(
     {
       validate(need(input$DataFile, "Missing data file!"))
-
+      
       inFile <- input$DataFile
-      DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
+      file_ext <- tools::file_ext(inFile$name)
+      
+      if (file_ext %in% c("xlsx", "xls")) {
+        DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
+      } else if (file_ext == "csv") {
+        DataTable <- read.csv(inFile$datapath)
+      } else {
+        stop("Unsupported file format.")
+      }
 
       Normalized_DataTable <- DataTable
       # Exclude the Endpoint variable before normalizing
@@ -292,7 +321,16 @@ server <- function(input, output) {
     validate(need(input$DataFile, "Missing data file!"))
 
     inFile <- input$DataFile
-    DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
+    file_ext <- tools::file_ext(inFile$name)
+    
+    if (file_ext %in% c("xlsx", "xls")) {
+      DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
+    } else if (file_ext == "csv") {
+      DataTable <- read.csv(inFile$datapath)
+    } else {
+      stop("Unsupported file format.")
+    }
+    
     DataTable$Patient.ID <- as.character(DataTable$ID)
 
     Normalized_DataTable <- DataTable
@@ -306,22 +344,52 @@ server <- function(input, output) {
       Predicted.Score = round(Pred.prob, 3),
       Predicted.Lymphedema = ifelse(Pred.prob > 0.5, "Yes", "No")
     )
-
-    RowIndex <- input$pred.lymphedema_rows_selected
-    Score <- ifelse(is.na(RowIndex), "NA", Pred.Table$Predicted.Score[RowIndex])
-    DisplayScore <- paste("Score =", ifelse(is.numeric(RowIndex), Score, "NA"), sep = " ")
-
-    color_lymph <- ifelse(!is.numeric(Score), "blue",
-      ifelse(Score > 0.5, "red", "green")
+    
+    Pred.Table2 <- data.frame(
+      Patient.ID = as.factor(DataTable$ID),
+      Predicted.Score = round(Pred.prob, 3),
+      Predicted.Lymphedema = ifelse(Pred.prob > 0.5, "Yes", "No"),
+      Patient.Age = round(DataTable$age, 3),
+      Patient.Sex = ifelse(DataTable$sex == 2, "Female", "Male")
     )
 
+    RowIndex <- input$pred.lymphedema_rows_selected
+    ID <- ifelse(is.na(RowIndex), "NA", Pred.Table$Patient.ID[RowIndex])
+    DisplayID <- paste("", ifelse(is.numeric(RowIndex), ID, "N/A"), sep = " ")
+    Age <- ifelse(is.na(RowIndex), "NA", Pred.Table2$Patient.Age[RowIndex])
+    DisplayAge <- paste("", ifelse(is.numeric(RowIndex), Age, "N/A"), sep = " ")
+    Sex <- ifelse(is.na(RowIndex), "NA", Pred.Table2$Patient.Sex[RowIndex])
+    DisplaySex <- paste("", ifelse(is.numeric(RowIndex), Sex, "N/A"), sep = " ")
+    Score <- ifelse(is.na(RowIndex), "NA", Pred.Table$Predicted.Score[RowIndex])
+    DisplayScore <- paste("", ifelse(is.numeric(RowIndex), Score, "N/A"), sep = " ")
+    YesNo <- ifelse(is.na(RowIndex), "NA", Pred.Table$Predicted.Lymphedema[RowIndex])
+    DisplayYesNo <- paste("", ifelse(is.numeric(RowIndex), YesNo, "N/A"), sep = " ")
+    
+    color_lymph <- ifelse(!is.numeric(Score), "blue",
+                          ifelse(Score > 0.5, "red", "green")
+    )
+    
     subtitle_lymph <- ifelse(!is.numeric(Score), "Patient ID not selected",
       ifelse(Score <= 0.5, paste("Patient ID ", Pred.Table$Patient.ID[RowIndex], " has LOW risk of Lymphedema", sep = ""),
         paste("Patient ID ", Pred.Table$Patient.ID[RowIndex], " has HIGH risk of Lymphedema", sep = "")
       )
     )
-
-    valueBox(DisplayScore, subtitle_lymph, color = color_lymph, width = 3)
+    
+    # Concatenate all values into a single string
+    all_values <- paste(
+      paste("<b style='font-size: 18px;'>Patient ID:</b>", "<span style='font-size: 18px;'>", DisplayID, "</span>", sep = ""), 
+      paste("<b style='font-size: 18px;'>Age:</b>", "<span style='font-size: 18px;'>", DisplayAge, "</span>", sep = ""), 
+      paste("<b style='font-size: 18px;'>Sex:</b>", "<span style='font-size: 18px;'>", DisplaySex, "</span>", sep = ""), 
+      paste("<b style='font-size: 18px;'>Probability of having Lymphedema:</b>", "<span style='font-size: 18px;'>", DisplayScore, "</span>", sep = ""),
+      paste("<b style='font-size: 18px;'>Prediction Outcome:</b>", "<span style='font-size: 18px;'>", DisplayYesNo, "</span>", sep = ""), 
+      "",
+      "",
+      sep = "<br>"
+    )
+    
+    # Use HTML function to format text with line breaks
+    valueBox(HTML(all_values), subtitle_lymph, color = color_lymph, width = 3)
+    
   })
 
   # Visualization of feature
