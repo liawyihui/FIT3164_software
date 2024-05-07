@@ -126,81 +126,83 @@ ui <- fluidPage(
           )
         ), # mainPanel
         fluidRow(
-          column(
-            width = 6,
-            selectInput(
-              inputId = "feature", label = "Select feature for uploaded data visualization:",
-              choices = c(
-                "--Select--" = "select",
-                "Age" = "age",
-                "Gender" = "sex",
-                "Number of Lymph Node Harvested" = "lnn",
-                "Taxane-based Chemotherapy" = "tax",
-                "Radiation Fraction" = "fx",
-                "Amount of Radiation (Gray)" = "Gy",
-                "Breast Reconstruction" = "recon",
-                "Chemotherapy" = "che",
-                "Axilla Radiation Therapy" = "axi",
-                "Platelets" = "PLT",
-                "Procalcitonin" = "PCT",
-                "White Blood Cells" = "WBC",
-                "Absolute Neutrophil Count" = "ANC",
-                "Red Blood Cell" = "RBC",
-                "Mean Platelet Volume" = "MPV",
-                "Eosinophil" = "Eosinophil",
-                "Basophil" = "Basophil",
-                "Monocyte" = "Monocyte",
-                "Hematocrit" = "Hct",
-                "Segmented Neutrophil" = "Segmented.neutrophil",
-                "Mean Corpuscular Hemoglobin Concentration" = "MCHC",
-                "Hemoglobin" = "Hb",
-                "Lymphocyte" = "Lymphocyte",
-                "Mean Corpuscular Volume" = "MCV",
-                "Mean Corpuscular Hemoglobin" = "MCH",
-                "Potassium Serum" = "Potassium.serum",
-                "Chloride Serum" = "Chloride.serum",
-                "Sodium Serum" = "Sodium.serum"
-              )
+          tabsetPanel(
+            tabPanel(
+              "Data Visualization",
+              selectInput(
+                inputId = "feature", label = "Select feature for uploaded data visualization:",
+                choices = c(
+                  "--Select--" = "select",
+                  "Age" = "age",
+                  "Gender" = "sex",
+                  "Number of Lymph Node Harvested" = "lnn",
+                  "Taxane-based Chemotherapy" = "tax",
+                  "Radiation Fraction" = "fx",
+                  "Amount of Radiation (Gray)" = "Gy",
+                  "Breast Reconstruction" = "recon",
+                  "Chemotherapy" = "che",
+                  "Axilla Radiation Therapy" = "axi",
+                  "Platelets" = "PLT",
+                  "Procalcitonin" = "PCT",
+                  "White Blood Cells" = "WBC",
+                  "Absolute Neutrophil Count" = "ANC",
+                  "Red Blood Cell" = "RBC",
+                  "Mean Platelet Volume" = "MPV",
+                  "Eosinophil" = "Eosinophil",
+                  "Basophil" = "Basophil",
+                  "Monocyte" = "Monocyte",
+                  "Hematocrit" = "Hct",
+                  "Segmented Neutrophil" = "Segmented.neutrophil",
+                  "Mean Corpuscular Hemoglobin Concentration" = "MCHC",
+                  "Hemoglobin" = "Hb",
+                  "Lymphocyte" = "Lymphocyte",
+                  "Mean Corpuscular Volume" = "MCV",
+                  "Mean Corpuscular Hemoglobin" = "MCH",
+                  "Potassium Serum" = "Potassium.serum",
+                  "Chloride Serum" = "Chloride.serum",
+                  "Sodium Serum" = "Sodium.serum"
+                )
+              ),
+              plotOutput("FeatureDistribution")
             ),
-            plotOutput("FeatureDistribution")
-          ),
-          column(
-            width = 6,
-            selectInput(
-              inputId = "result_feature", label = "Select feature for results visualization:",
-              choices = c(
-                "--Select--" = "select",
-                "Age" = "age",
-                "Gender" = "sex",
-                "Number of Lymph Node Harvested" = "lnn",
-                "Taxane-based Chemotherapy" = "tax",
-                "Radiation Fraction" = "fx",
-                "Amount of Radiation (Gray)" = "Gy",
-                "Breast Reconstruction" = "recon",
-                "Chemotherapy" = "che",
-                "Axilla Radiation Therapy" = "axi",
-                "Platelets" = "PLT",
-                "Procalcitonin" = "PCT",
-                "White Blood Cells" = "WBC",
-                "Absolute Neutrophil Count" = "ANC",
-                "Red Blood Cell" = "RBC",
-                "Mean Platelet Volume" = "MPV",
-                "Eosinophil" = "Eosinophil",
-                "Basophil" = "Basophil",
-                "Monocyte" = "Monocyte",
-                "Hematocrit" = "Hct",
-                "Segmented Neutrophil" = "Segmented.neutrophil",
-                "Mean Corpuscular Hemoglobin Concentration" = "MCHC",
-                "Hemoglobin" = "Hb",
-                "Lymphocyte" = "Lymphocyte",
-                "Mean Corpuscular Volume" = "MCV",
-                "Mean Corpuscular Hemoglobin" = "MCH",
-                "Potassium Serum" = "Potassium.serum",
-                "Chloride Serum" = "Chloride.serum",
-                "Sodium Serum" = "Sodium.serum"
-              )
-            ),
-            plotOutput("prediction_plot")
+            tabPanel(
+              "Prediction Results Visualization",
+              selectInput(
+                inputId = "result_feature", label = "Select feature for prediction results visualization:",
+                choices = c(
+                  "--Select--" = "select",
+                  "Age" = "age",
+                  "Gender" = "sex",
+                  "Number of Lymph Node Harvested" = "lnn",
+                  "Taxane-based Chemotherapy" = "tax",
+                  "Radiation Fraction" = "fx",
+                  "Amount of Radiation (Gray)" = "Gy",
+                  "Breast Reconstruction" = "recon",
+                  "Chemotherapy" = "che",
+                  "Axilla Radiation Therapy" = "axi",
+                  "Platelets" = "PLT",
+                  "Procalcitonin" = "PCT",
+                  "White Blood Cells" = "WBC",
+                  "Absolute Neutrophil Count" = "ANC",
+                  "Red Blood Cell" = "RBC",
+                  "Mean Platelet Volume" = "MPV",
+                  "Eosinophil" = "Eosinophil",
+                  "Basophil" = "Basophil",
+                  "Monocyte" = "Monocyte",
+                  "Hematocrit" = "Hct",
+                  "Segmented Neutrophil" = "Segmented.neutrophil",
+                  "Mean Corpuscular Hemoglobin Concentration" = "MCHC",
+                  "Hemoglobin" = "Hb",
+                  "Lymphocyte" = "Lymphocyte",
+                  "Mean Corpuscular Volume" = "MCV",
+                  "Mean Corpuscular Hemoglobin" = "MCH",
+                  "Potassium Serum" = "Potassium.serum",
+                  "Chloride Serum" = "Chloride.serum",
+                  "Sodium Serum" = "Sodium.serum"
+                )
+              ),
+              plotOutput("prediction_plot")
+            )
           ),
           style = "margin-top: 30px;"
         ) # Plot histogram
