@@ -110,7 +110,7 @@ ui <- fluidPage(
             tags$strong("Template of dataset:"),
             div(downloadButton("DownloadData", "Download"), style = "margin-bottom: 20px;"),
             tags$strong("Sample dataset:"),
-            div(downloadButton("SampleDataset", "Download"), style = "margin-bottom: 20px;"),
+            div(downloadButton("SampleDataset", "Download"), style = "margin-bottom: 20px;")
           ), # sidebarPanel
           mainPanel(
             verbatimTextOutput("txtout"), # txtout is generated from the server
@@ -125,41 +125,85 @@ ui <- fluidPage(
             DT::dataTableOutput("pred.lymphedema"),
           )
         ), # mainPanel
-        selectInput(
-          inputId = "feature", "Select feature for visualization:",
-          c(
-            "--Select--" = "select",
-            "Age" = "age",
-            "Gender" = "sex",
-            "Number of Lymph Node Harvested" = "lnn",
-            "Taxane-based Chemotherapy" = "tax",
-            "Radiation Fraction" = "fx",
-            "Amount of Radiation (Gray)" = "Gy",
-            "Breast Reconstruction" = "recon",
-            "Chemotherapy" = "che",
-            "Axilla Radiation Therapy" = "axi",
-            "Platelets" = "PLT",
-            "Procalcitonin" = "PCT",
-            "White Blood Cells" = "WBC",
-            "Absolute Neutrophil Count" = "ANC",
-            "Red Blood Cell" = "RBC",
-            "Mean Platelet Volume" = "MPV",
-            "Eosinophil" = "Eosinophil",
-            "Basophil" = "Basophil",
-            "Monocyte" = "Monocyte",
-            "Hematocrit" = "Hct",
-            "Segmented Neutrophil" = "Segmented.neutrophil",
-            "Mean Corpuscular Hemoglobin Concentration" = "MCHC",
-            "Hemoglobin" = "Hb",
-            "Lymphocyte" = "Lymphocyte",
-            "Mean Corpuscular Volume" = "MCV",
-            "Mean Corpuscular Hemoglobin" = "MCH",
-            "Potassium Serum" = "Potassium.serum",
-            "Chloride Serum" = "Chloride.serum",
-            "Sodium Serum" = "Sodium.serum"
-          )
-        ),
-        plotOutput("FeatureDistribution") # Plot histogram
+        fluidRow(
+          column(
+            width = 6,
+            selectInput(
+              inputId = "feature", label = "Select feature for uploaded data visualization:",
+              choices = c(
+                "--Select--" = "select",
+                "Age" = "age",
+                "Gender" = "sex",
+                "Number of Lymph Node Harvested" = "lnn",
+                "Taxane-based Chemotherapy" = "tax",
+                "Radiation Fraction" = "fx",
+                "Amount of Radiation (Gray)" = "Gy",
+                "Breast Reconstruction" = "recon",
+                "Chemotherapy" = "che",
+                "Axilla Radiation Therapy" = "axi",
+                "Platelets" = "PLT",
+                "Procalcitonin" = "PCT",
+                "White Blood Cells" = "WBC",
+                "Absolute Neutrophil Count" = "ANC",
+                "Red Blood Cell" = "RBC",
+                "Mean Platelet Volume" = "MPV",
+                "Eosinophil" = "Eosinophil",
+                "Basophil" = "Basophil",
+                "Monocyte" = "Monocyte",
+                "Hematocrit" = "Hct",
+                "Segmented Neutrophil" = "Segmented.neutrophil",
+                "Mean Corpuscular Hemoglobin Concentration" = "MCHC",
+                "Hemoglobin" = "Hb",
+                "Lymphocyte" = "Lymphocyte",
+                "Mean Corpuscular Volume" = "MCV",
+                "Mean Corpuscular Hemoglobin" = "MCH",
+                "Potassium Serum" = "Potassium.serum",
+                "Chloride Serum" = "Chloride.serum",
+                "Sodium Serum" = "Sodium.serum"
+              )
+            ),
+            plotOutput("FeatureDistribution")
+          ),
+          column(
+            width = 6,
+            selectInput(
+              inputId = "result_feature", label = "Select feature for results visualization:",
+              choices = c(
+                "--Select--" = "select",
+                "Age" = "age",
+                "Gender" = "sex",
+                "Number of Lymph Node Harvested" = "lnn",
+                "Taxane-based Chemotherapy" = "tax",
+                "Radiation Fraction" = "fx",
+                "Amount of Radiation (Gray)" = "Gy",
+                "Breast Reconstruction" = "recon",
+                "Chemotherapy" = "che",
+                "Axilla Radiation Therapy" = "axi",
+                "Platelets" = "PLT",
+                "Procalcitonin" = "PCT",
+                "White Blood Cells" = "WBC",
+                "Absolute Neutrophil Count" = "ANC",
+                "Red Blood Cell" = "RBC",
+                "Mean Platelet Volume" = "MPV",
+                "Eosinophil" = "Eosinophil",
+                "Basophil" = "Basophil",
+                "Monocyte" = "Monocyte",
+                "Hematocrit" = "Hct",
+                "Segmented Neutrophil" = "Segmented.neutrophil",
+                "Mean Corpuscular Hemoglobin Concentration" = "MCHC",
+                "Hemoglobin" = "Hb",
+                "Lymphocyte" = "Lymphocyte",
+                "Mean Corpuscular Volume" = "MCV",
+                "Mean Corpuscular Hemoglobin" = "MCH",
+                "Potassium Serum" = "Potassium.serum",
+                "Chloride Serum" = "Chloride.serum",
+                "Sodium Serum" = "Sodium.serum"
+              )
+            ),
+            plotOutput("prediction_plot")
+          ),
+          style = "margin-top: 30px;"
+        ) # Plot histogram
       ), # Navbar 2, tabPanel
       tabPanel(
         "About Model",
@@ -186,6 +230,8 @@ ui <- fluidPage(
 
 # define server function
 server <- function(input, output) {
+  prediction_results <- NULL
+
   output$lymphedema_img <- renderImage(
     {
       list(
@@ -246,7 +292,7 @@ server <- function(input, output) {
   datasetInput <- reactive({
     inFile <- input$DataFile
     file_ext <- tools::file_ext(inFile$name)
-    
+
     if (file_ext %in% c("xlsx", "xls")) {
       DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
     } else if (file_ext == "csv") {
@@ -254,7 +300,7 @@ server <- function(input, output) {
     } else {
       stop("Unsupported file format.")
     }
-    
+
     return(DataTable)
   })
 
@@ -273,7 +319,7 @@ server <- function(input, output) {
     },
     contentType = "ExcelFile"
   )
-  
+
   # downloadable xlsx sample dataset
   output$SampleDataset <- downloadHandler(
     filename = function() {
@@ -289,10 +335,10 @@ server <- function(input, output) {
   output$pred.lymphedema <- DT::renderDataTable(
     {
       validate(need(input$DataFile, "Missing data file!"))
-      
+
       inFile <- input$DataFile
       file_ext <- tools::file_ext(inFile$name)
-      
+
       if (file_ext %in% c("xlsx", "xls")) {
         DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
       } else if (file_ext == "csv") {
@@ -307,6 +353,13 @@ server <- function(input, output) {
       Normalized_DataTable[, independent_variables] <- scale(Normalized_DataTable[, independent_variables])
 
       Pred.prob <- predict(model, Normalized_DataTable, type = "prob")
+      results_plot <- data.frame(
+        DataTable,
+        Predicted.Score = round(Pred.prob, 3),
+        Predicted.Lymphedema = ifelse(Pred.prob > 0.5, "Yes", "No")
+      )
+      prediction_results$data <<- results_plot
+
       OutputTable <- data.frame(
         Patient.ID = as.factor(DataTable$ID),
         Predicted.Score = round(Pred.prob, 3),
@@ -322,7 +375,7 @@ server <- function(input, output) {
 
     inFile <- input$DataFile
     file_ext <- tools::file_ext(inFile$name)
-    
+
     if (file_ext %in% c("xlsx", "xls")) {
       DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
     } else if (file_ext == "csv") {
@@ -330,7 +383,7 @@ server <- function(input, output) {
     } else {
       stop("Unsupported file format.")
     }
-    
+
     DataTable$Patient.ID <- as.character(DataTable$ID)
 
     Normalized_DataTable <- DataTable
@@ -344,7 +397,7 @@ server <- function(input, output) {
       Predicted.Score = round(Pred.prob, 3),
       Predicted.Lymphedema = ifelse(Pred.prob > 0.5, "Yes", "No")
     )
-    
+
     Pred.Table2 <- data.frame(
       Patient.ID = as.factor(DataTable$ID),
       Predicted.Score = round(Pred.prob, 3),
@@ -364,32 +417,94 @@ server <- function(input, output) {
     DisplayScore <- paste("", ifelse(is.numeric(RowIndex), Score, "N/A"), sep = " ")
     YesNo <- ifelse(is.na(RowIndex), "NA", Pred.Table$Predicted.Lymphedema[RowIndex])
     DisplayYesNo <- paste("", ifelse(is.numeric(RowIndex), YesNo, "N/A"), sep = " ")
-    
+
     color_lymph <- ifelse(!is.numeric(Score), "blue",
-                          ifelse(Score > 0.5, "red", "green")
+      ifelse(Score > 0.5, "red", "green")
     )
-    
+
     subtitle_lymph <- ifelse(!is.numeric(Score), "Patient ID not selected",
       ifelse(Score <= 0.5, paste("Patient ID ", Pred.Table$Patient.ID[RowIndex], " has LOW risk of Lymphedema", sep = ""),
         paste("Patient ID ", Pred.Table$Patient.ID[RowIndex], " has HIGH risk of Lymphedema", sep = "")
       )
     )
-    
+
     # Concatenate all values into a single string
     all_values <- paste(
-      paste("<b style='font-size: 18px;'>Patient ID:</b>", "<span style='font-size: 18px;'>", DisplayID, "</span>", sep = ""), 
-      paste("<b style='font-size: 18px;'>Age:</b>", "<span style='font-size: 18px;'>", DisplayAge, "</span>", sep = ""), 
-      paste("<b style='font-size: 18px;'>Sex:</b>", "<span style='font-size: 18px;'>", DisplaySex, "</span>", sep = ""), 
+      paste("<b style='font-size: 18px;'>Patient ID:</b>", "<span style='font-size: 18px;'>", DisplayID, "</span>", sep = ""),
+      paste("<b style='font-size: 18px;'>Age:</b>", "<span style='font-size: 18px;'>", DisplayAge, "</span>", sep = ""),
+      paste("<b style='font-size: 18px;'>Sex:</b>", "<span style='font-size: 18px;'>", DisplaySex, "</span>", sep = ""),
       paste("<b style='font-size: 18px;'>Probability of having Lymphedema:</b>", "<span style='font-size: 18px;'>", DisplayScore, "</span>", sep = ""),
-      paste("<b style='font-size: 18px;'>Prediction Outcome:</b>", "<span style='font-size: 18px;'>", DisplayYesNo, "</span>", sep = ""), 
+      paste("<b style='font-size: 18px;'>Prediction Outcome:</b>", "<span style='font-size: 18px;'>", DisplayYesNo, "</span>", sep = ""),
       "",
       "",
       sep = "<br>"
     )
-    
+
     # Use HTML function to format text with line breaks
     valueBox(HTML(all_values), subtitle_lymph, color = color_lymph, width = 3)
-    
+  })
+
+  # Visualization based on prediction probabilities
+  output$prediction_plot <- renderPlot({
+    validate(need(input$DataFile, "Please upload data file."))
+    validate(need(input$result_feature != "select", "Please select a feature."))
+
+    feature_names <- c(
+      "age" = "Age",
+      "sex" = "Gender",
+      "lnn" = "Number of Lymph Node Harvested",
+      "tax" = "Taxane-based Chemotherapy",
+      "fx" = "Radiation Fraction",
+      "Gy" = "Amount of Radiation (Gray)",
+      "recon" = "Breast Reconstruction",
+      "che" = "Chemotherapy",
+      "axi" = "Axilla Radiation Therapy",
+      "PLT" = "Platelets",
+      "PCT" = "Procalcitonin",
+      "WBC" = "White Blood Cells",
+      "ANC" = "Absolute Neutrophil Count",
+      "RBC" = "Red Blood Cell",
+      "MPV" = "Mean Platelet Volume",
+      "Eosinophil" = "Eosinophil",
+      "Basophil" = "Basophil",
+      "Monocyte" = "Monocyte",
+      "Hct" = "Hematocrit",
+      "Segmented.neutrophil" = "Segmented Neutrophil",
+      "MCHC" = "Mean Corpuscular Hemoglobin Concentration",
+      "Hb" = "Hemoglobin",
+      "Lymphocyte" = "Lymphocyte",
+      "MCV" = "Mean Corpuscular Volume",
+      "MCH" = "Mean Corpuscular Hemoglobin",
+      "Potassium.serum" = "Potassium Serum",
+      "Chloride.serum" = "Chloride Serum",
+      "Sodium.serum" = "Sodium Serum"
+    )
+
+    validate(need(input$result_feature %in% colnames(prediction_results$data), "Please ensure the selected feature is in the uploaded file."))
+
+    # Plotting
+    if (input$result_feature == "sex") {
+      prediction_results$data$sex <- ifelse(prediction_results$data$sex == 1, "Male", "Female")
+    } else if (input$result_feature == "recon") {
+      prediction_results$data$recon <- ifelse(prediction_results$data$recon == 0, "No Reconstruction", ifelse(prediction_results$data$recon == 1, "TRAM flat", "Implant"))
+    } else if (input$result_feature == "che") {
+      prediction_results$data$che <- ifelse(prediction_results$data$che == 1, "Yes", "No")
+    } else if (input$result_feature == "axi") {
+      prediction_results$data$axi <- ifelse(prediction_results$data$axi == 1, "Yes", "No")
+    } else if (input$result_feature == "tax") {
+      prediction_results$data$tax <- ifelse(prediction_results$data$tax == 0, "No taxane", ifelse(prediction_results$data$tax == 1, "Type 1", "Type 2"))
+    }
+
+    ggplot(prediction_results$data, aes_string(x = input$result_feature, y = "Predicted.Score")) +
+      geom_point(color = "blue") +
+      geom_hline(yintercept = 0.5, linetype = "dashed", color = "red", linewidth = 1.2) +
+      labs(
+        title = paste("Prediction Probability vs ", feature_names[input$result_feature], sep = ""),
+        x = feature_names[input$result_feature],
+        y = "Prediction Probability"
+      ) +
+      theme(text = element_text(size = 16, face = "bold"), plot.title = element_text(hjust = 0.5)) +
+      theme(axis.text.x = element_text(angle = 0, hjust = 1, colour = "black"))
   })
 
   # Visualization of feature
