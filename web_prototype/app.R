@@ -404,6 +404,10 @@ server <- function(input, output) {
         Predicted.Probability = round(Pred.prob, 3),
         Predicted.Lymphedema = ifelse(Pred.prob > 0.5, "Yes", "No")
       )
+
+      colnames(OutputTable) <- c("Patient ID", "Predicted Probability", "PredictedLymphedema")
+
+      OutputTable
     },
     selection = "single"
   )
