@@ -7,6 +7,7 @@ library(ggplot2)
 library(ggpubr)
 library(ggpmisc)
 library(ebmc)
+library(openxlsx)
 
 # loading trained model
 load("final_model.RData")
@@ -92,16 +93,19 @@ ui <- fluidPage(
           )
         ),
         fluidRow(
-          column(12, div(style = "text-align: center", actionButton("start_assess", "Start Assessment", style="font-size: 17px; background-color: #337ab7; border-color: #2e6da4; width: 200px")))
-
+          column(12, div(style = "text-align: center", actionButton("start_assess", "Start Assessment", style = "font-size: 17px; background-color: #337ab7; border-color: #2e6da4; width: 200px")))
         ),
         fluidRow(
           column(12, div(style = "height:110px;", ""))
         ),
         fluidRow(
-          column(12, p(style = "font-size: 16.5px; text-align: center; font-style: italic; font-family: Arial; font-weight: bold", "Monash University Malaysia"),
-                 p(style = "font-size: 16px; text-align: center", HTML(paste("<b>Collaborators:</b> Liaw Yi Hui (32023707), Pang Eason (32024584), Chan Jia Xin (31859089)", "<b>Supervisor:</b> Dr. Ong Huey Fang", 
-                                                                             "Built with R, Shiny & Shiny Server", "13th May, 2024", sep="<br>"))))
+          column(
+            12, p(style = "font-size: 16.5px; text-align: center; font-style: italic; font-family: Arial; font-weight: bold", "Monash University Malaysia"),
+            p(style = "font-size: 16px; text-align: center", HTML(paste("<b>Collaborators:</b> Liaw Yi Hui (32023707), Pang Eason (32024584), Chan Jia Xin (31859089)", "<b>Supervisor:</b> Dr. Ong Huey Fang",
+              "Built with R, Shiny & Shiny Server", "13th May, 2024",
+              sep = "<br>"
+            )))
+          )
         )
       ), # Navbar 1, tabPanel
       tabPanel(
@@ -129,7 +133,8 @@ ui <- fluidPage(
               style = "text-align:left; color:black; padding:0px; border-radius:0px"
             ),
             tableOutput("pred.single"),
-            DT::dataTableOutput("pred.lymphedema"),
+            div(downloadButton("downloadResult", "Download Results"), style = "margin-bottom: 20px;"),
+            DT::dataTableOutput("pred.lymphedema")
           )
         ), # mainPanel
         fluidRow(
@@ -217,9 +222,13 @@ ui <- fluidPage(
           column(12, div(style = "height:110px;", ""))
         ),
         fluidRow(
-          column(12, p(style = "font-size: 16.5px; text-align: center; font-style: italic; font-family: Arial; font-weight: bold", "Monash University Malaysia"),
-                 p(style = "font-size: 16px; text-align: center", HTML(paste("<b>Collaborators:</b> Liaw Yi Hui (32023707), Pang Eason (32024584), Chan Jia Xin (31859089)", "<b>Supervisor:</b> Dr. Ong Huey Fang", 
-                                                                             "Built with R, Shiny & Shiny Server", "13th May, 2024", sep="<br>"))))
+          column(
+            12, p(style = "font-size: 16.5px; text-align: center; font-style: italic; font-family: Arial; font-weight: bold", "Monash University Malaysia"),
+            p(style = "font-size: 16px; text-align: center", HTML(paste("<b>Collaborators:</b> Liaw Yi Hui (32023707), Pang Eason (32024584), Chan Jia Xin (31859089)", "<b>Supervisor:</b> Dr. Ong Huey Fang",
+              "Built with R, Shiny & Shiny Server", "13th May, 2024",
+              sep = "<br>"
+            )))
+          )
         )
       ), # Navbar 2, tabPanel
       tabPanel(
@@ -244,9 +253,13 @@ ui <- fluidPage(
           column(12, div(style = "height:110px;", ""))
         ),
         fluidRow(
-          column(12, p(style = "font-size: 16.5px; text-align: center; font-style: italic; font-family: Arial; font-weight: bold", "Monash University Malaysia"),
-                 p(style = "font-size: 16px; text-align: center", HTML(paste("<b>Collaborators:</b> Liaw Yi Hui (32023707), Pang Eason (32024584), Chan Jia Xin (31859089)", "<b>Supervisor:</b> Dr. Ong Huey Fang", 
-                                                                             "Built with R, Shiny & Shiny Server", "13th May, 2024", sep="<br>"))))
+          column(
+            12, p(style = "font-size: 16.5px; text-align: center; font-style: italic; font-family: Arial; font-weight: bold", "Monash University Malaysia"),
+            p(style = "font-size: 16px; text-align: center", HTML(paste("<b>Collaborators:</b> Liaw Yi Hui (32023707), Pang Eason (32024584), Chan Jia Xin (31859089)", "<b>Supervisor:</b> Dr. Ong Huey Fang",
+              "Built with R, Shiny & Shiny Server", "13th May, 2024",
+              sep = "<br>"
+            )))
+          )
         )
       ) # Navbar 3, tabPanel
     ) # tabsetPanel
@@ -469,6 +482,15 @@ server <- function(input, output) {
     valueBox(HTML(all_values), subtitle_lymph, color = color_lymph, width = 3)
   })
 
+  output$downloadResult <- downloadHandler(
+    filename = function() {
+      paste("prediction_results", Sys.Date(), ".xlsx", sep = "")
+    },
+    content = function(file) {
+      write.xlsx(prediction_results$data, file, rowNames = FALSE)
+    }
+  )
+
   # Visualization based on prediction probabilities
   output$prediction_plot <- renderPlot({
     validate(need(input$DataFile, "Please upload data file."))
@@ -529,7 +551,8 @@ server <- function(input, output) {
         y = "Prediction Probability"
       ) +
       theme(text = element_text(size = 16, face = "bold"), plot.title = element_text(hjust = 0.5)) +
-      theme(axis.text.x = element_text(angle = 0, hjust = 1, colour = "black"))
+      theme(axis.text.x = element_text(angle = 0, hjust = 1, colour = "black", face = "plain")) +
+      theme(axis.text.y = element_text(face = "plain"))
   })
 
   # Visualization of feature
@@ -624,7 +647,8 @@ server <- function(input, output) {
           y = "Number of People"
         ) +
         theme(text = element_text(size = 16, face = "bold"), plot.title = element_text(hjust = 0.5)) +
-        theme(axis.text.x = element_text(angle = 0, hjust = 1, colour = "black"))
+        theme(axis.text.x = element_text(angle = 0, hjust = 1, colour = "black", face = "plain")) +
+        theme(axis.text.y = element_text(face = "plain"))
     }
 
     return(plots)
