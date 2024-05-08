@@ -407,7 +407,7 @@ server <- function(input, output) {
 
   # predicting lymphedema for the selected patient
   output$pred.single <- renderValueBox({
-    validate(need(input$DataFile, "Missing data file!"))
+    validate(need(input$DataFile, ""))
 
     inFile <- input$DataFile
     file_ext <- tools::file_ext(inFile$name)
