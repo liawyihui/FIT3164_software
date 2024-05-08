@@ -129,11 +129,11 @@ ui <- fluidPage(
             p(strong("All Patients' Result"),
               style = "font-size:24px; text-align:justify; color:black; background-color:papayawhip; padding:15px; border-radius:10px"
             ),
-            p(strong("Lymphedema predicted score of the selected Patient ID:"),
+            p(strong("Lymphedema predicted probability of the selected Patient ID:"),
               style = "text-align:left; color:black; padding:0px; border-radius:0px"
             ),
             tableOutput("pred.single"),
-            div(downloadButton("downloadResult", "Download Results"), style = "margin-bottom: 20px;"),
+            uiOutput("downloadResultsButtonOutput"),
             DT::dataTableOutput("pred.lymphedema")
           )
         ), # mainPanel
@@ -180,7 +180,7 @@ ui <- fluidPage(
             tabPanel(
               "Prediction Results Visualization",
               selectInput(
-                inputId = "result_feature", label = "Select feature for prediction results visualization:",
+                inputId = "result_feature", label = "Select feature for results visualization:",
                 choices = c(
                   "--Select--" = "select",
                   "Age" = "age",
@@ -268,7 +268,7 @@ ui <- fluidPage(
 
 # define server function
 server <- function(input, output) {
-  prediction_results <- NULL
+  prediction_results <- reactiveValues(data = NULL)
 
   output$lymphedema_img <- renderImage(
     {
@@ -391,16 +391,17 @@ server <- function(input, output) {
       Normalized_DataTable[, independent_variables] <- scale(Normalized_DataTable[, independent_variables])
 
       Pred.prob <- predict(model, Normalized_DataTable, type = "prob")
+
       results_plot <- data.frame(
         DataTable,
-        Predicted.Score = round(Pred.prob, 3),
+        Predicted.Probability = round(Pred.prob, 3),
         Predicted.Lymphedema = ifelse(Pred.prob > 0.5, "Yes", "No")
       )
-      prediction_results$data <<- results_plot
+      prediction_results$data <- results_plot
 
       OutputTable <- data.frame(
         Patient.ID = as.factor(DataTable$ID),
-        Predicted.Score = round(Pred.prob, 3),
+        Predicted.Probability = round(Pred.prob, 3),
         Predicted.Lymphedema = ifelse(Pred.prob > 0.5, "Yes", "No")
       )
     },
@@ -432,13 +433,13 @@ server <- function(input, output) {
     Pred.prob <- predict(model, Normalized_DataTable, type = "prob")
     Pred.Table <- data.frame(
       Patient.ID = as.factor(DataTable$ID),
-      Predicted.Score = round(Pred.prob, 3),
+      Predicted.Probability = round(Pred.prob, 3),
       Predicted.Lymphedema = ifelse(Pred.prob > 0.5, "Yes", "No")
     )
 
     Pred.Table2 <- data.frame(
       Patient.ID = as.factor(DataTable$ID),
-      Predicted.Score = round(Pred.prob, 3),
+      Predicted.Probability = round(Pred.prob, 3),
       Predicted.Lymphedema = ifelse(Pred.prob > 0.5, "Yes", "No"),
       Patient.Age = round(DataTable$age, 3),
       Patient.Sex = ifelse(DataTable$sex == 2, "Female", "Male")
@@ -451,17 +452,17 @@ server <- function(input, output) {
     DisplayAge <- paste("", ifelse(is.numeric(RowIndex), Age, "N/A"), sep = " ")
     Sex <- ifelse(is.na(RowIndex), "NA", Pred.Table2$Patient.Sex[RowIndex])
     DisplaySex <- paste("", ifelse(is.numeric(RowIndex), Sex, "N/A"), sep = " ")
-    Score <- ifelse(is.na(RowIndex), "NA", Pred.Table$Predicted.Score[RowIndex])
-    DisplayScore <- paste("", ifelse(is.numeric(RowIndex), Score, "N/A"), sep = " ")
+    Probability <- ifelse(is.na(RowIndex), "NA", Pred.Table$Predicted.Probability[RowIndex])
+    DisplayProbability <- paste("", ifelse(is.numeric(RowIndex), Probability, "N/A"), sep = " ")
     YesNo <- ifelse(is.na(RowIndex), "NA", Pred.Table$Predicted.Lymphedema[RowIndex])
     DisplayYesNo <- paste("", ifelse(is.numeric(RowIndex), YesNo, "N/A"), sep = " ")
 
-    color_lymph <- ifelse(!is.numeric(Score), "blue",
-      ifelse(Score > 0.5, "red", "green")
+    color_lymph <- ifelse(!is.numeric(Probability), "blue",
+      ifelse(Probability > 0.5, "red", "green")
     )
 
-    subtitle_lymph <- ifelse(!is.numeric(Score), "Patient ID not selected",
-      ifelse(Score <= 0.5, paste("Patient ID ", Pred.Table$Patient.ID[RowIndex], " has LOW risk of Lymphedema", sep = ""),
+    subtitle_lymph <- ifelse(!is.numeric(Probability), "Patient ID not selected",
+      ifelse(Probability <= 0.5, paste("Patient ID ", Pred.Table$Patient.ID[RowIndex], " has LOW risk of Lymphedema", sep = ""),
         paste("Patient ID ", Pred.Table$Patient.ID[RowIndex], " has HIGH risk of Lymphedema", sep = "")
       )
     )
@@ -471,7 +472,7 @@ server <- function(input, output) {
       paste("<b style='font-size: 18px;'>Patient ID:</b>", "<span style='font-size: 18px;'>", DisplayID, "</span>", sep = ""),
       paste("<b style='font-size: 18px;'>Age:</b>", "<span style='font-size: 18px;'>", DisplayAge, "</span>", sep = ""),
       paste("<b style='font-size: 18px;'>Sex:</b>", "<span style='font-size: 18px;'>", DisplaySex, "</span>", sep = ""),
-      paste("<b style='font-size: 18px;'>Probability of having Lymphedema:</b>", "<span style='font-size: 18px;'>", DisplayScore, "</span>", sep = ""),
+      paste("<b style='font-size: 18px;'>Probability of having Lymphedema:</b>", "<span style='font-size: 18px;'>", DisplayProbability, "</span>", sep = ""),
       paste("<b style='font-size: 18px;'>Prediction Outcome:</b>", "<span style='font-size: 18px;'>", DisplayYesNo, "</span>", sep = ""),
       "",
       "",
@@ -484,12 +485,20 @@ server <- function(input, output) {
 
   output$downloadResult <- downloadHandler(
     filename = function() {
-      paste("prediction_results", Sys.Date(), ".xlsx", sep = "")
+      paste("prediction_results_", Sys.Date(), ".xlsx", sep = "")
     },
     content = function(file) {
       write.xlsx(prediction_results$data, file, rowNames = FALSE)
     }
   )
+
+  output$downloadResultsButtonOutput <- renderUI({
+    if (!is.null(prediction_results$data)) {
+      div(downloadButton("downloadResult", "Download Results"), style = "margin-bottom: 20px;")
+    } else {
+      NULL
+    }
+  })
 
   # Visualization based on prediction probabilities
   output$prediction_plot <- renderPlot({
@@ -529,20 +538,22 @@ server <- function(input, output) {
 
     validate(need(input$result_feature %in% colnames(prediction_results$data), "Please ensure the selected feature is in the uploaded file."))
 
+    converted_prediction_data <- prediction_results$data
+
     # Plotting
     if (input$result_feature == "sex") {
-      prediction_results$data$sex <- ifelse(prediction_results$data$sex == 1, "Male", "Female")
+      converted_prediction_data$sex <- ifelse(converted_prediction_data$sex == 1, "Male", "Female")
     } else if (input$result_feature == "recon") {
-      prediction_results$data$recon <- ifelse(prediction_results$data$recon == 0, "No Reconstruction", ifelse(prediction_results$data$recon == 1, "TRAM flat", "Implant"))
+      converted_prediction_data$recon <- ifelse(converted_prediction_data$recon == 0, "No Reconstruction", ifelse(converted_prediction_data$recon == 1, "TRAM flat", "Implant"))
     } else if (input$result_feature == "che") {
-      prediction_results$data$che <- ifelse(prediction_results$data$che == 1, "Yes", "No")
+      converted_prediction_data$che <- ifelse(converted_prediction_data$che == 1, "Yes", "No")
     } else if (input$result_feature == "axi") {
-      prediction_results$data$axi <- ifelse(prediction_results$data$axi == 1, "Yes", "No")
+      converted_prediction_data$axi <- ifelse(converted_prediction_data$axi == 1, "Yes", "No")
     } else if (input$result_feature == "tax") {
-      prediction_results$data$tax <- ifelse(prediction_results$data$tax == 0, "No taxane", ifelse(prediction_results$data$tax == 1, "Type 1", "Type 2"))
+      converted_prediction_data$tax <- ifelse(converted_prediction_data$tax == 0, "No taxane", ifelse(converted_prediction_data$tax == 1, "Type 1", "Type 2"))
     }
 
-    ggplot(prediction_results$data, aes_string(x = input$result_feature, y = "Predicted.Score")) +
+    ggplot(converted_prediction_data, aes_string(x = input$result_feature, y = "Predicted.Probability")) +
       geom_point(color = "blue") +
       geom_hline(yintercept = 0.5, linetype = "dashed", color = "red", linewidth = 1.2) +
       labs(
