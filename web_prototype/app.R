@@ -97,15 +97,6 @@ ui <- fluidPage(
         ),
         fluidRow(
           column(12, div(style = "height:110px;", ""))
-        ),
-        fluidRow(
-          column(
-            12, p(style = "font-size: 16.5px; text-align: center; font-style: italic; font-family: Arial; font-weight: bold", "Monash University Malaysia"),
-            p(style = "font-size: 16px; text-align: center", HTML(paste("<b>Collaborators:</b> Liaw Yi Hui (32023707), Pang Eason (32024584), Chan Jia Xin (31859089)", "<b>Supervisor:</b> Dr. Ong Huey Fang",
-              "Built with R, Shiny & Shiny Server", "13th May, 2024",
-              sep = "<br>"
-            )))
-          )
         )
       ), # Navbar 1, tabPanel
       tabPanel(
@@ -220,15 +211,6 @@ ui <- fluidPage(
         ), # Plot histogram
         fluidRow(
           column(12, div(style = "height:110px;", ""))
-        ),
-        fluidRow(
-          column(
-            12, p(style = "font-size: 16.5px; text-align: center; font-style: italic; font-family: Arial; font-weight: bold", "Monash University Malaysia"),
-            p(style = "font-size: 16px; text-align: center", HTML(paste("<b>Collaborators:</b> Liaw Yi Hui (32023707), Pang Eason (32024584), Chan Jia Xin (31859089)", "<b>Supervisor:</b> Dr. Ong Huey Fang",
-              "Built with R, Shiny & Shiny Server", "13th May, 2024",
-              sep = "<br>"
-            )))
-          )
         )
       ), # Navbar 2, tabPanel
       tabPanel(
@@ -251,19 +233,29 @@ ui <- fluidPage(
         ),
         fluidRow(
           column(12, div(style = "height:110px;", ""))
-        ),
-        fluidRow(
-          column(
-            12, p(style = "font-size: 16.5px; text-align: center; font-style: italic; font-family: Arial; font-weight: bold", "Monash University Malaysia"),
-            p(style = "font-size: 16px; text-align: center", HTML(paste("<b>Collaborators:</b> Liaw Yi Hui (32023707), Pang Eason (32024584), Chan Jia Xin (31859089)", "<b>Supervisor:</b> Dr. Ong Huey Fang",
-              "Built with R, Shiny & Shiny Server", "13th May, 2024",
-              sep = "<br>"
-            )))
-          )
         )
       ) # Navbar 3, tabPanel
     ) # tabsetPanel
-  ) # navbarPage
+  ), # navbarPage
+  tags$footer(
+    style = "background-color: #CCCCCC; padding: 10px; text-align: center;",
+    p(
+      style = "font-size: 16.5px; text-align: center; font-style: italic; font-family: Arial; font-weight: bold;",
+      "Monash University Malaysia"
+    ),
+    p(
+      style = "font-size: 16px; text-align: center;",
+      HTML(
+        paste(
+          "<b>Collaborators:</b> Liaw Yi Hui (32023707), Pang Eason (32024584), Chan Jia Xin (31859089)",
+          "<b>Supervisor:</b> Dr. Ong Huey Fang",
+          "Built with R, Shiny & Shiny Server",
+          "13th May, 2024",
+          sep = "<br>"
+        )
+      )
+    )
+  )
 ) # fluidPage
 
 # define server function
@@ -505,169 +497,175 @@ server <- function(input, output) {
   })
 
   # Visualization based on prediction probabilities
-  output$prediction_plot <- renderPlot({
-    validate(need(input$DataFile, "Please upload data file."))
-    validate(need(input$result_feature != "select", "Please select a feature."))
+  output$prediction_plot <- renderPlot(
+    {
+      validate(need(input$DataFile, "Please upload data file."))
+      validate(need(input$result_feature != "select", "Please select a feature."))
 
-    feature_names <- c(
-      "age" = "Age",
-      "sex" = "Gender",
-      "lnn" = "Number of Lymph Node Harvested",
-      "tax" = "Taxane-based Chemotherapy",
-      "fx" = "Radiation Fraction",
-      "Gy" = "Amount of Radiation (Gray)",
-      "recon" = "Breast Reconstruction",
-      "che" = "Chemotherapy",
-      "axi" = "Axilla Radiation Therapy",
-      "PLT" = "Platelets",
-      "PCT" = "Procalcitonin",
-      "WBC" = "White Blood Cells",
-      "ANC" = "Absolute Neutrophil Count",
-      "RBC" = "Red Blood Cell",
-      "MPV" = "Mean Platelet Volume",
-      "Eosinophil" = "Eosinophil",
-      "Basophil" = "Basophil",
-      "Monocyte" = "Monocyte",
-      "Hct" = "Hematocrit",
-      "Segmented.neutrophil" = "Segmented Neutrophil",
-      "MCHC" = "Mean Corpuscular Hemoglobin Concentration",
-      "Hb" = "Hemoglobin",
-      "Lymphocyte" = "Lymphocyte",
-      "MCV" = "Mean Corpuscular Volume",
-      "MCH" = "Mean Corpuscular Hemoglobin",
-      "Potassium.serum" = "Potassium Serum",
-      "Chloride.serum" = "Chloride Serum",
-      "Sodium.serum" = "Sodium Serum"
-    )
+      feature_names <- c(
+        "age" = "Age",
+        "sex" = "Gender",
+        "lnn" = "Number of Lymph Node Harvested",
+        "tax" = "Taxane-based Chemotherapy",
+        "fx" = "Radiation Fraction",
+        "Gy" = "Amount of Radiation (Gray)",
+        "recon" = "Breast Reconstruction",
+        "che" = "Chemotherapy",
+        "axi" = "Axilla Radiation Therapy",
+        "PLT" = "Platelets",
+        "PCT" = "Procalcitonin",
+        "WBC" = "White Blood Cells",
+        "ANC" = "Absolute Neutrophil Count",
+        "RBC" = "Red Blood Cell",
+        "MPV" = "Mean Platelet Volume",
+        "Eosinophil" = "Eosinophil",
+        "Basophil" = "Basophil",
+        "Monocyte" = "Monocyte",
+        "Hct" = "Hematocrit",
+        "Segmented.neutrophil" = "Segmented Neutrophil",
+        "MCHC" = "Mean Corpuscular Hemoglobin Concentration",
+        "Hb" = "Hemoglobin",
+        "Lymphocyte" = "Lymphocyte",
+        "MCV" = "Mean Corpuscular Volume",
+        "MCH" = "Mean Corpuscular Hemoglobin",
+        "Potassium.serum" = "Potassium Serum",
+        "Chloride.serum" = "Chloride Serum",
+        "Sodium.serum" = "Sodium Serum"
+      )
 
-    validate(need(input$result_feature %in% colnames(prediction_results$data), "Please ensure the selected feature is in the uploaded file."))
+      validate(need(input$result_feature %in% colnames(prediction_results$data), "Please ensure the selected feature is in the uploaded file."))
 
-    converted_prediction_data <- prediction_results$data
+      converted_prediction_data <- prediction_results$data
 
-    # Plotting
-    if (input$result_feature == "sex") {
-      converted_prediction_data$sex <- ifelse(converted_prediction_data$sex == 1, "Male", "Female")
-    } else if (input$result_feature == "recon") {
-      converted_prediction_data$recon <- ifelse(converted_prediction_data$recon == 0, "No Reconstruction", ifelse(converted_prediction_data$recon == 1, "TRAM flat", "Implant"))
-    } else if (input$result_feature == "che") {
-      converted_prediction_data$che <- ifelse(converted_prediction_data$che == 1, "Yes", "No")
-    } else if (input$result_feature == "axi") {
-      converted_prediction_data$axi <- ifelse(converted_prediction_data$axi == 1, "Yes", "No")
-    } else if (input$result_feature == "tax") {
-      converted_prediction_data$tax <- ifelse(converted_prediction_data$tax == 0, "No taxane", ifelse(converted_prediction_data$tax == 1, "Type 1", "Type 2"))
-    }
-
-    ggplot(converted_prediction_data, aes_string(x = input$result_feature, y = "Predicted.Probability")) +
-      geom_point(color = "blue") +
-      geom_hline(yintercept = 0.5, linetype = "dashed", color = "red", linewidth = 1.2) +
-      labs(
-        title = paste("Prediction Probability vs ", feature_names[input$result_feature], sep = ""),
-        x = feature_names[input$result_feature],
-        y = "Prediction Probability"
-      ) +
-      theme(text = element_text(size = 16, face = "bold"), plot.title = element_text(hjust = 0.5)) +
-      theme(axis.text.x = element_text(angle = 0, hjust = 1, colour = "black", face = "plain")) +
-      theme(axis.text.y = element_text(face = "plain"))
-  })
-
-  # Visualization of feature
-  output$FeatureDistribution <- renderPlot({
-    validate(need(input$DataFile, "Please upload data file."))
-    validate(need(input$feature != "select", "Please select a feature."))
-
-    # Read the uploaded dataset
-    inFile <- input$DataFile
-    file_ext <- tools::file_ext(inFile$name)
-
-    if (file_ext %in% c("xlsx", "xls")) {
-      DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
-    } else if (file_ext == "csv") {
-      DataTable <- read.csv(inFile$datapath)
-    } else {
-      stop("Unsupported file format.")
-    }
-
-    validate(need(input$feature %in% colnames(DataTable), "Please ensure the selected feature is in the uploaded file."))
-
-    feature_names <- c(
-      "age" = "Age",
-      "sex" = "Gender",
-      "lnn" = "Number of Lymph Node Harvested",
-      "tax" = "Taxane-based Chemotherapy",
-      "fx" = "Radiation Fraction",
-      "Gy" = "Amount of Radiation (Gray)",
-      "recon" = "Breast Reconstruction",
-      "che" = "Chemotherapy",
-      "axi" = "Axilla Radiation Therapy",
-      "PLT" = "Platelets",
-      "PCT" = "Procalcitonin",
-      "WBC" = "White Blood Cells",
-      "ANC" = "Absolute Neutrophil Count",
-      "RBC" = "Red Blood Cell",
-      "MPV" = "Mean Platelet Volume",
-      "Eosinophil" = "Eosinophil",
-      "Basophil" = "Basophil",
-      "Monocyte" = "Monocyte",
-      "Hct" = "Hematocrit",
-      "Segmented.neutrophil" = "Segmented Neutrophil",
-      "MCHC" = "Mean Corpuscular Hemoglobin Concentration",
-      "Hb" = "Hemoglobin",
-      "Lymphocyte" = "Lymphocyte",
-      "MCV" = "Mean Corpuscular Volume",
-      "MCH" = "Mean Corpuscular Hemoglobin",
-      "Potassium.serum" = "Potassium Serum",
-      "Chloride.serum" = "Chloride Serum",
-      "Sodium.serum" = "Sodium Serum"
-    )
-
-    if (input$feature == "sex" || input$feature == "recon" || input$feature == "che" || input$feature == "axi" || input$feature == "tax") {
-      if (input$feature == "sex") {
-        DataTable$sex <- ifelse(DataTable$sex == 1, "Male", "Female")
-        custom_colour <- c("Male" = "#2d50ff", "Female" = "#ffa0d4")
-        plots <- ggplot(DataTable, aes(x = "", fill = sex))
-      } else if (input$feature == "recon") {
-        DataTable$recon <- ifelse(DataTable$recon == 0, "No Reconstruction", ifelse(DataTable$recon == 1, "TRAM flat", "Implant"))
-        custom_colour <- c("No Reconstruction" = "#bd87ff", "TRAM flat" = "#ffa0a0", "Implant" = "#deff09")
-        plots <- ggplot(DataTable, aes(x = "", fill = recon))
-      } else if (input$feature == "che") {
-        DataTable$che <- ifelse(DataTable$che == 1, "Yes", "No")
-        custom_colour <- c("Yes" = "#bd87ff", "No" = "#ffa0a0")
-        plots <- ggplot(DataTable, aes(x = "", fill = che))
-      } else if (input$feature == "axi") {
-        DataTable$axi <- ifelse(DataTable$axi == 1, "Yes", "No")
-        custom_colour <- c("Yes" = "#bd87ff", "No" = "#ffa0a0")
-        plots <- ggplot(DataTable, aes(x = "", fill = axi))
-      } else if (input$feature == "tax") {
-        DataTable$tax <- ifelse(DataTable$tax == 0, "No taxane", ifelse(DataTable$tax == 1, "Type 1", "Type 2"))
-        custom_colour <- c("No taxane" = "#bd87ff", "Type 1" = "#ffa0a0", "Type 2" = "#deff09")
-        plots <- ggplot(DataTable, aes(x = "", fill = tax))
+      # Plotting
+      if (input$result_feature == "sex") {
+        converted_prediction_data$sex <- ifelse(converted_prediction_data$sex == 1, "Male", "Female")
+      } else if (input$result_feature == "recon") {
+        converted_prediction_data$recon <- ifelse(converted_prediction_data$recon == 0, "No Reconstruction", ifelse(converted_prediction_data$recon == 1, "TRAM flat", "Implant"))
+      } else if (input$result_feature == "che") {
+        converted_prediction_data$che <- ifelse(converted_prediction_data$che == 1, "Yes", "No")
+      } else if (input$result_feature == "axi") {
+        converted_prediction_data$axi <- ifelse(converted_prediction_data$axi == 1, "Yes", "No")
+      } else if (input$result_feature == "tax") {
+        converted_prediction_data$tax <- ifelse(converted_prediction_data$tax == 0, "No taxane", ifelse(converted_prediction_data$tax == 1, "Type 1", "Type 2"))
       }
 
-      plots <- plots + geom_bar(width = 1, color = "black") +
-        coord_polar(theta = "y") +
+      ggplot(converted_prediction_data, aes_string(x = input$result_feature, y = "Predicted.Probability")) +
+        geom_point(color = "blue") +
+        geom_hline(yintercept = 0.5, linetype = "dashed", color = "red", linewidth = 1.2) +
         labs(
-          title = paste("Distribution of ", feature_names[input$feature], sep = ""),
-          fill = feature_names[input$feature]
-        ) +
-        theme_void() +
-        scale_fill_manual(values = custom_colour) +
-        theme(text = element_text(size = 16, face = "bold"), plot.title = element_text(hjust = 0.5)) +
-        geom_text(aes(label = paste0(format(round((..count..) / sum(..count..) * 100, 2), nsmall = 2), "%")), stat = "count", position = position_stack(vjust = 0.5), size = 4.5)
-    } else {
-      plots <- ggplot(DataTable, aes_string(x = input$feature)) +
-        geom_histogram(color = "#000000", fill = "#6d85ff") +
-        labs(
-          title = paste("Histogram of ", feature_names[input$feature], sep = ""),
-          x = feature_names[input$feature],
-          y = "Number of People"
+          title = paste("Prediction Probability vs ", feature_names[input$result_feature], sep = ""),
+          x = feature_names[input$result_feature],
+          y = "Prediction Probability"
         ) +
         theme(text = element_text(size = 16, face = "bold"), plot.title = element_text(hjust = 0.5)) +
         theme(axis.text.x = element_text(angle = 0, hjust = 1, colour = "black", face = "plain")) +
         theme(axis.text.y = element_text(face = "plain"))
-    }
+    },
+    height = 500
+  )
 
-    return(plots)
-  })
+  # Visualization of feature
+  output$FeatureDistribution <- renderPlot(
+    {
+      validate(need(input$DataFile, "Please upload data file."))
+      validate(need(input$feature != "select", "Please select a feature."))
+
+      # Read the uploaded dataset
+      inFile <- input$DataFile
+      file_ext <- tools::file_ext(inFile$name)
+
+      if (file_ext %in% c("xlsx", "xls")) {
+        DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
+      } else if (file_ext == "csv") {
+        DataTable <- read.csv(inFile$datapath)
+      } else {
+        stop("Unsupported file format.")
+      }
+
+      validate(need(input$feature %in% colnames(DataTable), "Please ensure the selected feature is in the uploaded file."))
+
+      feature_names <- c(
+        "age" = "Age",
+        "sex" = "Gender",
+        "lnn" = "Number of Lymph Node Harvested",
+        "tax" = "Taxane-based Chemotherapy",
+        "fx" = "Radiation Fraction",
+        "Gy" = "Amount of Radiation (Gray)",
+        "recon" = "Breast Reconstruction",
+        "che" = "Chemotherapy",
+        "axi" = "Axilla Radiation Therapy",
+        "PLT" = "Platelets",
+        "PCT" = "Procalcitonin",
+        "WBC" = "White Blood Cells",
+        "ANC" = "Absolute Neutrophil Count",
+        "RBC" = "Red Blood Cell",
+        "MPV" = "Mean Platelet Volume",
+        "Eosinophil" = "Eosinophil",
+        "Basophil" = "Basophil",
+        "Monocyte" = "Monocyte",
+        "Hct" = "Hematocrit",
+        "Segmented.neutrophil" = "Segmented Neutrophil",
+        "MCHC" = "Mean Corpuscular Hemoglobin Concentration",
+        "Hb" = "Hemoglobin",
+        "Lymphocyte" = "Lymphocyte",
+        "MCV" = "Mean Corpuscular Volume",
+        "MCH" = "Mean Corpuscular Hemoglobin",
+        "Potassium.serum" = "Potassium Serum",
+        "Chloride.serum" = "Chloride Serum",
+        "Sodium.serum" = "Sodium Serum"
+      )
+
+      if (input$feature == "sex" || input$feature == "recon" || input$feature == "che" || input$feature == "axi" || input$feature == "tax") {
+        if (input$feature == "sex") {
+          DataTable$sex <- ifelse(DataTable$sex == 1, "Male", "Female")
+          custom_colour <- c("Male" = "#2d50ff", "Female" = "#ffa0d4")
+          plots <- ggplot(DataTable, aes(x = "", fill = sex))
+        } else if (input$feature == "recon") {
+          DataTable$recon <- ifelse(DataTable$recon == 0, "No Reconstruction", ifelse(DataTable$recon == 1, "TRAM flat", "Implant"))
+          custom_colour <- c("No Reconstruction" = "#bd87ff", "TRAM flat" = "#ffa0a0", "Implant" = "#deff09")
+          plots <- ggplot(DataTable, aes(x = "", fill = recon))
+        } else if (input$feature == "che") {
+          DataTable$che <- ifelse(DataTable$che == 1, "Yes", "No")
+          custom_colour <- c("Yes" = "#bd87ff", "No" = "#ffa0a0")
+          plots <- ggplot(DataTable, aes(x = "", fill = che))
+        } else if (input$feature == "axi") {
+          DataTable$axi <- ifelse(DataTable$axi == 1, "Yes", "No")
+          custom_colour <- c("Yes" = "#bd87ff", "No" = "#ffa0a0")
+          plots <- ggplot(DataTable, aes(x = "", fill = axi))
+        } else if (input$feature == "tax") {
+          DataTable$tax <- ifelse(DataTable$tax == 0, "No taxane", ifelse(DataTable$tax == 1, "Type 1", "Type 2"))
+          custom_colour <- c("No taxane" = "#bd87ff", "Type 1" = "#ffa0a0", "Type 2" = "#deff09")
+          plots <- ggplot(DataTable, aes(x = "", fill = tax))
+        }
+
+        plots <- plots + geom_bar(width = 1, color = "black") +
+          coord_polar(theta = "y") +
+          labs(
+            title = paste("Distribution of ", feature_names[input$feature], sep = ""),
+            fill = feature_names[input$feature]
+          ) +
+          theme_void() +
+          scale_fill_manual(values = custom_colour) +
+          theme(text = element_text(size = 16, face = "bold"), plot.title = element_text(hjust = 0.5)) +
+          geom_text(aes(label = paste0(format(round((..count..) / sum(..count..) * 100, 2), nsmall = 2), "%")), stat = "count", position = position_stack(vjust = 0.5), size = 4.5)
+      } else {
+        plots <- ggplot(DataTable, aes_string(x = input$feature)) +
+          geom_histogram(color = "#000000", fill = "#6d85ff") +
+          labs(
+            title = paste("Histogram of ", feature_names[input$feature], sep = ""),
+            x = feature_names[input$feature],
+            y = "Number of People"
+          ) +
+          theme(text = element_text(size = 16, face = "bold"), plot.title = element_text(hjust = 0.5)) +
+          theme(axis.text.x = element_text(angle = 0, hjust = 1, colour = "black", face = "plain")) +
+          theme(axis.text.y = element_text(face = "plain"))
+      }
+
+      return(plots)
+    },
+    height = 500
+  )
 
   # output section
   output$txtout <- renderText({
