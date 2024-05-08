@@ -682,16 +682,18 @@ server <- function(input, output) {
   })
 
   output$confusionMatrix <- renderPlot({
-      confusion_matrix <- read_xlsx("confusion_matrix.xlsx")
-      
-      p <- ggplot(data = confusion_matrix, aes(x = Reference, y = Prediction)) +
-        geom_tile(aes(fill = Freq), color = "white") +
-        scale_fill_distiller(name="", palette="Blues", direction=1) +
-        geom_text(aes(label = Freq), vjust = 1) +
-        labs(x = "True Label", y = "Predicted Label") + theme_bw() + coord_equal()
-      
-      p
-    })
+    confusion_matrix <- read_xlsx("confusion_matrix.xlsx")
+
+    p <- ggplot(data = confusion_matrix, aes(x = Reference, y = Prediction)) +
+      geom_tile(aes(fill = Freq), color = "white") +
+      scale_fill_distiller(name = "", palette = "Blues", direction = 1) +
+      geom_text(aes(label = Freq), vjust = 1) +
+      labs(x = "True Label", y = "Predicted Label") +
+      theme_bw() +
+      coord_equal()
+
+    p
+  })
 
   output$variable_impt <- renderPlot({
     variable_impt <- read_xlsx("variance_importance.xlsx")
