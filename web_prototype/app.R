@@ -481,7 +481,7 @@ server <- function(input, output) {
 
   output$downloadResult <- downloadHandler(
     filename = function() {
-      paste("prediction_results_", Sys.Date(), ".xlsx", sep = "")
+      paste("Prediction_Results_", Sys.Date(), ".xlsx", sep = "")
     },
     content = function(file) {
       write.xlsx(prediction_results$data, file, rowNames = FALSE)
