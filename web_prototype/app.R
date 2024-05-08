@@ -36,7 +36,7 @@ ui <- fluidPage(
       tabPanel(
         "Home",
         fluidRow(
-          column(12, tags$h2("About Lymphedema"))
+          column(12, div(style = "height:50px;", tags$h2("About Lymphedema")))
         ),
         fluidRow(
           column(
@@ -61,10 +61,10 @@ ui <- fluidPage(
           column(3, imageOutput("lymphedema2_img"))
         ),
         fluidRow(
-          column(12, tags$h2("3 Steps to Use Our Tool"))
+          column(12, div(style = "height:55px;", tags$h2("3 Steps to Use Our Tool")))
         ),
         fluidRow(
-          column(1, imageOutput("number1_img", height = "210px")),
+          column(1, imageOutput("number1_img", height = "240px")),
           column(
             3, tags$h2("Input your Dataset"),
             p(
@@ -73,7 +73,7 @@ ui <- fluidPage(
                                  Ensure completeness and accuracy of the data."
             )
           ),
-          column(1, imageOutput("number2_img", height = "210px")),
+          column(1, imageOutput("number2_img", height = "240px")),
           column(
             3, tags$h2("Lymphedema Assessment"),
             p(
@@ -81,7 +81,7 @@ ui <- fluidPage(
               "We evaluate the risk of lymphedema for each patient based on the dataset provided."
             )
           ),
-          column(1, imageOutput("number3_img", height = "210px")),
+          column(1, imageOutput("number3_img", height = "240px")),
           column(
             3, tags$h2("Your Results"),
             p(
@@ -263,7 +263,7 @@ server <- function(input, output) {
       list(
         src = "img/Lymphedema-early-detection.jpg",
         width = "100%",
-        height = 380
+        height = 370
       )
     },
     deleteFile = FALSE
@@ -274,7 +274,7 @@ server <- function(input, output) {
       list(
         src = "img/10434_2014_3518_Fig1_HTML.jpg",
         width = "100%",
-        height = 380
+        height = 370
       )
     },
     deleteFile = FALSE
