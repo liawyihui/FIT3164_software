@@ -71,6 +71,9 @@ performance <- confusionMatrix(factor(rus_predictions_binary), test_data$Endpoin
 performance
 performance$byClass["F1"]
 
+cm <- as.data.frame(performance$table)
+write.xlsx(cm, file = "confusion_matrix.xlsx")
+
 ROCit_obj_test <- rocit(score=rus_predictions, class=test_data$Endpoint)
 ROC_data_test <- data.frame(FPR = ROCit_obj_test$FPR,
                             TPR = ROCit_obj_test$TPR)
