@@ -379,8 +379,8 @@ server <- function(input, output) {
       }
 
       Normalized_DataTable <- DataTable
-      # Exclude the Endpoint variable before normalizing
-      independent_variables <- setdiff(names(Normalized_DataTable), c("Endpoint", "ID"))
+      # Exclude the ID variable before normalizing
+      independent_variables <- setdiff(names(Normalized_DataTable), c("ID"))
       Normalized_DataTable[, independent_variables] <- scale(Normalized_DataTable[, independent_variables])
 
       Pred.prob <- predict(model, Normalized_DataTable, type = "prob")
@@ -423,8 +423,8 @@ server <- function(input, output) {
     DataTable$Patient.ID <- as.character(DataTable$ID)
 
     Normalized_DataTable <- DataTable
-    # Exclude the Endpoint variable before normalizing
-    independent_variables <- setdiff(names(Normalized_DataTable), c("Patient.ID", "ID", "Endpoint"))
+    # Exclude the ID variables before normalizing
+    independent_variables <- setdiff(names(Normalized_DataTable), c("Patient.ID", "ID"))
     Normalized_DataTable[, independent_variables] <- scale(Normalized_DataTable[, independent_variables])
 
     Pred.prob <- predict(model, Normalized_DataTable, type = "prob")
