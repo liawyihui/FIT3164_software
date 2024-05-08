@@ -219,7 +219,8 @@ ui <- fluidPage(
           column(12, tags$h3("Model Performance"))
         ),
         fluidRow(
-          column(12, tableOutput("table"))
+          column(2, tableOutput("table")),
+          column(3, plotOutput("confusionMatrix", height = "280px"))
         ),
         fluidRow(
           column(4, tags$h3("ROC Curve")),
@@ -679,6 +680,18 @@ server <- function(input, output) {
 
     performance_test
   })
+
+  output$confusionMatrix <- renderPlot({
+      confusion_matrix <- read_xlsx("confusion_matrix.xlsx")
+      
+      p <- ggplot(data = confusion_matrix, aes(x = Reference, y = Prediction)) +
+        geom_tile(aes(fill = Freq), color = "white") +
+        scale_fill_distiller(name="", palette="Blues", direction=1) +
+        geom_text(aes(label = Freq), vjust = 1) +
+        labs(x = "True Label", y = "Predicted Label") + theme_bw() + coord_equal()
+      
+      p
+    })
 
   output$variable_impt <- renderPlot({
     variable_impt <- read_xlsx("variance_importance.xlsx")
