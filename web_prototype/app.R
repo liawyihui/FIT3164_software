@@ -64,7 +64,7 @@ ui <- fluidPage(
           column(12, tags$h2("3 Steps to Use Our Tool"))
         ),
         fluidRow(
-          column(1, imageOutput("number1_img", height = "240px")),
+          column(1, imageOutput("number1_img", height = "210px")),
           column(
             3, tags$h2("Input your Dataset"),
             p(
@@ -73,7 +73,7 @@ ui <- fluidPage(
                                  Ensure completeness and accuracy of the data."
             )
           ),
-          column(1, imageOutput("number2_img", height = "240px")),
+          column(1, imageOutput("number2_img", height = "210px")),
           column(
             3, tags$h2("Lymphedema Assessment"),
             p(
@@ -81,7 +81,7 @@ ui <- fluidPage(
               "We evaluate the risk of lymphedema for each patient based on the dataset provided."
             )
           ),
-          column(1, imageOutput("number3_img", height = "240px")),
+          column(1, imageOutput("number3_img", height = "210px")),
           column(
             3, tags$h2("Your Results"),
             p(
@@ -95,6 +95,14 @@ ui <- fluidPage(
           column(4, ""),
           column(4, actionButton("start_assess", "Start Assessment", style = "font-size: 17px; background-color: #337ab7; border-color: #2e6da4; width: 100%")),
           column(4, "")
+        ),
+        fluidRow(
+          column(12, div(style = "height:110px;", ""))
+        ),
+        fluidRow(
+          column(12, p(style = "font-size: 16.5px; text-align: center; font-style: italic; font-family: Arial; font-weight: bold", "Monash University Malaysia"),
+                 p(style = "font-size: 16px; text-align: center", HTML(paste("<b>Collaborators:</b> Liaw Yi Hui (32023707), Pang Eason (32024584), Chan Jia Xin (31859089)", "<b>Supervisor:</b> Dr. Ong Huey Fang", 
+                                                                             "Built with R, Shiny & Shiny Server", "13th May, 2024", sep="<br>"))))
         )
       ), # Navbar 1, tabPanel
       tabPanel(
@@ -205,7 +213,15 @@ ui <- fluidPage(
             )
           ),
           style = "margin-top: 30px;"
-        ) # Plot histogram
+        ), # Plot histogram
+        fluidRow(
+          column(12, div(style = "height:110px;", ""))
+        ),
+        fluidRow(
+          column(12, p(style = "font-size: 16.5px; text-align: center; font-style: italic; font-family: Arial; font-weight: bold", "Monash University Malaysia"),
+                 p(style = "font-size: 16px; text-align: center", HTML(paste("<b>Collaborators:</b> Liaw Yi Hui (32023707), Pang Eason (32024584), Chan Jia Xin (31859089)", "<b>Supervisor:</b> Dr. Ong Huey Fang", 
+                                                                             "Built with R, Shiny & Shiny Server", "13th May, 2024", sep="<br>"))))
+        )
       ), # Navbar 2, tabPanel
       tabPanel(
         "About Model",
@@ -224,6 +240,14 @@ ui <- fluidPage(
           column(4, plotOutput("ROC", height = "450px")),
           column(4, plotOutput("variable_impt", height = "450px")),
           column(4, tags$h3(""))
+        ),
+        fluidRow(
+          column(12, div(style = "height:110px;", ""))
+        ),
+        fluidRow(
+          column(12, p(style = "font-size: 16.5px; text-align: center; font-style: italic; font-family: Arial; font-weight: bold", "Monash University Malaysia"),
+                 p(style = "font-size: 16px; text-align: center", HTML(paste("<b>Collaborators:</b> Liaw Yi Hui (32023707), Pang Eason (32024584), Chan Jia Xin (31859089)", "<b>Supervisor:</b> Dr. Ong Huey Fang", 
+                                                                             "Built with R, Shiny & Shiny Server", "13th May, 2024", sep="<br>"))))
         )
       ) # Navbar 3, tabPanel
     ) # tabsetPanel
