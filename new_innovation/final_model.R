@@ -72,7 +72,11 @@ performance
 performance$byClass["F1"]
 
 ROCit_obj_test <- rocit(score=rus_predictions, class=test_data$Endpoint)
+ROC_data_test <- data.frame(FPR = ROCit_obj_test$FPR,
+                            TPR = ROCit_obj_test$TPR)
 ROCit_obj_test$AUC
+
+write.xlsx(ROC_data_test, file = "ROC_test.xlsx")
 
 importance_list <- list()
 for (i in 1:length(model$weakLearners)) {
