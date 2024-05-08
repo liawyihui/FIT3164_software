@@ -92,9 +92,8 @@ ui <- fluidPage(
           )
         ),
         fluidRow(
-          column(4, ""),
-          column(4, actionButton("start_assess", "Start Assessment", style = "font-size: 17px; background-color: #337ab7; border-color: #2e6da4; width: 100%")),
-          column(4, "")
+          column(12, div(style = "text-align: center", actionButton("start_assess", "Start Assessment", style="font-size: 17px; background-color: #337ab7; border-color: #2e6da4; width: 200px")))
+
         ),
         fluidRow(
           column(12, div(style = "height:110px;", ""))
