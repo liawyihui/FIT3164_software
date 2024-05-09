@@ -222,12 +222,12 @@ ui <- fluidPage(
         fluidRow(
           column(7, div(
             style = "height:100%; background-color:papayawhip; padding:20px; border-radius:10px; margin-bottom:30px;",
-            p("The machine learning predicts lymphedema among breast cancer survivors by 
-            utilizing techniques of oversampling, which creates synthetic data of the minority class, and 
-            undersampling, which reduces instances of the majority class, alongside RUSBoost. 
-            RUSBoost employs a boosting algorithm to sequentially build a series of Random 
-            Forest weak learners. Each weak learner adjusts its weights accordingly by 
-            prioritizing the minority class over 30 iterations. Finally, RUSBoost combines all 
+            p("The machine learning predicts lymphedema among breast cancer survivors by
+            utilizing techniques of oversampling, which creates synthetic data of the minority class, and
+            undersampling, which reduces instances of the majority class, alongside RUSBoost.
+            RUSBoost employs a boosting algorithm to sequentially build a series of Random
+            Forest weak learners. Each weak learner adjusts its weights accordingly by
+            prioritizing the minority class over 30 iterations. Finally, RUSBoost combines all
             weak learners into a single strong classifier for classification tasks.",
               style = "font-size:17px; text-align:justify; color:black;"
             ),
@@ -248,13 +248,19 @@ ui <- fluidPage(
         fluidRow(
           column(4, plotOutput("ROC", height = "450px")),
           column(4, plotOutput("variable_impt", height = "450px")),
-          column(4, div(style = "padding-top: 55px", p("The Receiver Operating Characteristic (ROC) curve illustrates a classifier's performance across various decision
+          column(4, div(
+            style = "padding-top: 55px; background-color:papayawhip; padding:20px; border-radius:10px",
+            p(HTML("The <strong>Receiver Operating Characteristic (ROC)</strong> curve illustrates a classifier's performance across various decision
                       thresholds, plotting sensitivity against 1 - specificity. A higher area under the curve (AUC) signifies better
-                      classifier performance. On the other hand, the relative variable importance bar chart depicts the significance of different
+                      classifier performance."),
+              style = "font-size:17px; text-align:justify; color:black;"
+            ),
+            p(HTML("On the other hand, the <strong>relative variable importance</strong> bar chart depicts the significance of different
                       features in a predictive model. In this chart, LNN (lymph node number) receives the highest score, indicating its
-                      importance in prediction, while sex has the lowest score, suggesting minimal impact.",
-            style = "font-size:17px; text-align:justify; color:black; background-color:papayawhip; padding:20px; border-radius:10px"
-          )))
+                      importance in prediction, while sex has the lowest score, suggesting minimal impact."),
+              style = "font-size:17px; text-align:justify; color:black;"
+            )
+          ))
         ),
         fluidRow(
           column(12, div(style = "height:110px;", ""))
@@ -714,7 +720,9 @@ server <- function(input, output) {
       geom_text(aes(label = Freq), vjust = 1) +
       labs(x = "True Label", y = "Predicted Label") +
       theme_bw() +
-      coord_equal()
+      coord_equal() +
+      theme(text = element_text(size = 16, face = "bold"),
+      axis.text = element_text(size = 16, face = "plain"))
 
     p
   })
@@ -727,8 +735,9 @@ server <- function(input, output) {
       geom_text(aes(label = round(score, 1)), position = position_stack(vjust = 0.5), size = 3, colour = "black") +
       labs(x = "", y = "Relative Importance") +
       theme(
-        text = element_text(size = 14, face = "bold"),
-        axis.text.x = element_text(angle = 0, hjust = 1, colour = "black")
+        text = element_text(size = 16, face = "bold"),
+        axis.text.x = element_text(angle = 0, hjust = 1, colour = "black", face = "plain"),
+        axis.text.y = element_text(colour = "black", face = "plain")
       ) +
       coord_flip() # Horizontal bar plot
 
@@ -742,7 +751,8 @@ server <- function(input, output) {
       geom_line(data = ROC_test, aes(x = FPR, y = TPR), color = "blue") +
       geom_abline(slope = 1, intercept = 0, color = "red", linetype = 2) +
       theme(text = element_text(size = 16, face = "bold")) +
-      theme(axis.text.x = element_text(angle = 0, hjust = 1, colour = "black"))
+      theme(axis.text.x = element_text(angle = 0, hjust = 1, colour = "black", face = "plain")) +
+      theme(axis.text.y = element_text(colour = "black", face = "plain"))
 
     p2
   })
