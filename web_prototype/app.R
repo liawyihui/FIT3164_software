@@ -221,7 +221,7 @@ ui <- fluidPage(
         ),
         fluidRow(
           column(7, div(
-            style = "height:100%; background-color:papayawhip; padding:20px; border-radius:10px",
+            style = "height:100%; background-color:papayawhip; padding:20px; border-radius:10px; margin-bottom:30px;",
             p("The machine learning predicts lymphedema among breast cancer survivors by 
             utilizing techniques of oversampling, which creates synthetic data of the minority class, and 
             undersampling, which reduces instances of the majority class, alongside RUSBoost. 
