@@ -506,7 +506,7 @@ server <- function(input, output) {
 
   output$downloadResult <- downloadHandler(
     filename = function() {
-      paste("Prediction_Results_", as.Date(Sys.time(), tz = Sys.timezone()), ".xlsx", sep = "")
+      paste("Prediction_Results.xlsx", sep = "")
     },
     content = function(file) {
       write.xlsx(prediction_results$data, file, rowNames = FALSE)
