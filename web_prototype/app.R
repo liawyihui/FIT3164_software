@@ -222,15 +222,13 @@ ui <- fluidPage(
         fluidRow(
           column(7, div(
             style = "height:100%; background-color:papayawhip; padding:20px; border-radius:10px",
-            p("The machine learning predicts lymphedema among breast cancer survivors by utilizing oversampling, undersampling and RUSBoost which is
-                        a variant of the boosting algorithm specifically designed for addressing class imbalance in datasets.
-                        The RUSBoost utilizes a boosting algorithm, typically AdaBoost, to sequentially build a series of Random Forest weak learners. Each weak learner
-                        focuses on instances that were misclassified or belong to the minority class by adjusting
-                        their weights accordingly. After training each weak learner, instance weights are updated
-                        to prioritize misclassified and minority class instances in subsequent iterations.
-                        This iterative process continues for 30 iterations. Finally, RUSBoost combines all weak
-                        learners into a single strong classifier through a weighted majority voting scheme,
-                        forming the final model for classification tasks.",
+            p("The machine learning predicts lymphedema among breast cancer survivors by 
+            utilizing techniques of oversampling, which creates synthetic data of the minority class, and 
+            undersampling, which reduces instances of the majority class, alongside RUSBoost. 
+            RUSBoost employs a boosting algorithm to sequentially build a series of Random 
+            Forest weak learners. Each weak learner adjusts its weights accordingly by 
+            prioritizing the minority class over 30 iterations. Finally, RUSBoost combines all 
+            weak learners into a single strong classifier for classification tasks.",
               style = "font-size:17px; text-align:justify; color:black;"
             ),
             p("Upon receiving data of patients, including blood test results and therapy data,
