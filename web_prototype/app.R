@@ -216,9 +216,20 @@ ui <- fluidPage(
       tabPanel(
         "About Model",
         fluidRow(
-          column(12, tags$h3("Model Performance"))
+          column(7, tags$h3("About Model")),
+          column(5, div(style = "text-align: center", tags$h3("Model Performance")))
         ),
         fluidRow(
+          column(7, div(style = "height:290px;",
+                        p("The machine learning predicts lymphedema among breast cancer survivors. It utilizes RUSBoost, a variant of the boosting algorithm specifically designed 
+                          for addressing class imbalance in datasets. RUSBoost combines the power of boosting with undersampling techniques 
+                          to improve the classification performance on imbalanced datasets. Upon receiving data of patients, including blood 
+                          test results and therapy data, the model assigns a score to each patient and predicts the likelihood of lymphedema. 
+                          A score above 0.5 indicates a potential positive prediction for lymphedema. By leveraging RUSBoost and patient data, 
+                          the model aims to provide valuable insights and early detection of lymphedema for improved patient care.",
+                          style="font-size:17px; text-align:justify; color:black; background-color:papayawhip; padding:20px; border-radius:10px"
+                        ))
+          ),
           column(2, tableOutput("table")),
           column(3, plotOutput("confusionMatrix", height = "280px"))
         ),
