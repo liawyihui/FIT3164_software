@@ -8,6 +8,7 @@ library(ggpubr)
 library(ggpmisc)
 library(ebmc)
 library(openxlsx)
+library(shinyBS)
 
 # loading trained model
 load("final_model.RData")
@@ -112,7 +113,9 @@ ui <- fluidPage(
             tags$strong("Template of dataset:"),
             div(downloadButton("DownloadData", "Download"), style = "margin-bottom: 20px;"),
             tags$strong("Sample dataset:"),
-            div(downloadButton("SampleDataset", "Download"), style = "margin-bottom: 20px;")
+            div(downloadButton("SampleDataset", "Download"), style = "margin-bottom: 20px;"),
+            bsTooltip("DownloadData", "Please refrain from making any modifications to the Excel sheet. This includes not altering the sheet name, deleting columns, or changing column names. Ensure that all columns are filled in completely, and there are no missing values.",
+                      "right", options = list(container = "body"))
           ), # sidebarPanel
           mainPanel(
             verbatimTextOutput("txtout"), # txtout is generated from the server
