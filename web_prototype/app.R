@@ -220,16 +220,26 @@ ui <- fluidPage(
           column(5, div(style = "text-align: center", tags$h3("Model Performance")))
         ),
         fluidRow(
-          column(7, div(style = "height:290px;",
-                        p("The machine learning predicts lymphedema among breast cancer survivors. It utilizes RUSBoost, a variant of the boosting algorithm specifically designed 
-                          for addressing class imbalance in datasets. RUSBoost combines the power of boosting with undersampling techniques 
-                          to improve the classification performance on imbalanced datasets. Upon receiving data of patients, including blood 
-                          test results and therapy data, the model assigns a score to each patient and predicts the likelihood of lymphedema. 
-                          A score above 0.5 indicates a potential positive prediction for lymphedema. By leveraging RUSBoost and patient data, 
-                          the model aims to provide valuable insights and early detection of lymphedema for improved patient care.",
-                          style="font-size:17px; text-align:justify; color:black; background-color:papayawhip; padding:20px; border-radius:10px"
-                        ))
-          ),
+          column(7, div(
+            style = "height:100%; background-color:papayawhip; padding:20px; border-radius:10px",
+            p("The machine learning predicts lymphedema among breast cancer survivors by utilizing oversampling, undersampling and RUSBoost which is
+                        a variant of the boosting algorithm specifically designed for addressing class imbalance in datasets.
+                        The RUSBoost utilizes a boosting algorithm, typically AdaBoost, to sequentially build a series of Random Forest weak learners. Each weak learner
+                        focuses on instances that were misclassified or belong to the minority class by adjusting
+                        their weights accordingly. After training each weak learner, instance weights are updated
+                        to prioritize misclassified and minority class instances in subsequent iterations.
+                        This iterative process continues for 30 iterations. Finally, RUSBoost combines all weak
+                        learners into a single strong classifier through a weighted majority voting scheme,
+                        forming the final model for classification tasks.",
+              style = "font-size:17px; text-align:justify; color:black;"
+            ),
+            p("Upon receiving data of patients, including blood test results and therapy data,
+                        the model assigns a score to each patient and predicts the likelihood of lymphedema.
+                        A score above 0.5 indicates a potential positive prediction for lymphedema. By leveraging RUSBoost and patient data,
+                        the model aims to provide valuable insights and early detection of lymphedema for improved patient care.",
+              style = "font-size:17px; text-align:justify; color:black;"
+            )
+          )),
           column(2, tableOutput("table")),
           column(3, plotOutput("confusionMatrix", height = "280px"))
         ),
@@ -240,13 +250,13 @@ ui <- fluidPage(
         fluidRow(
           column(4, plotOutput("ROC", height = "450px")),
           column(4, plotOutput("variable_impt", height = "450px")),
-          column(4, div(style = "padding-top: 55px", p("The Receiver Operating Characteristic (ROC) curve illustrates a classifier's performance across various decision 
-                      thresholds, plotting sensitivity against 1 - specificity. A higher area under the curve (AUC) signifies better 
-                      classifier performance. On the other hand, the relative variable importance bar chart depicts the significance of different 
-                      features in a predictive model. In this chart, LNN (lymph node number) receives the highest score, indicating its 
+          column(4, div(style = "padding-top: 55px", p("The Receiver Operating Characteristic (ROC) curve illustrates a classifier's performance across various decision
+                      thresholds, plotting sensitivity against 1 - specificity. A higher area under the curve (AUC) signifies better
+                      classifier performance. On the other hand, the relative variable importance bar chart depicts the significance of different
+                      features in a predictive model. In this chart, LNN (lymph node number) receives the highest score, indicating its
                       importance in prediction, while sex has the lowest score, suggesting minimal impact.",
-                      style="font-size:17px; text-align:justify; color:black; background-color:papayawhip; padding:20px; border-radius:10px"
-                    )))
+            style = "font-size:17px; text-align:justify; color:black; background-color:papayawhip; padding:20px; border-radius:10px"
+          )))
         ),
         fluidRow(
           column(12, div(style = "height:110px;", ""))
