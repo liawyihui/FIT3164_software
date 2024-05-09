@@ -217,11 +217,11 @@ ui <- fluidPage(
         "About Model",
         fluidRow(
           column(7, tags$h3("About Model")),
-          column(5, div(style = "text-align: center", tags$h3("Model Performance")))
+          column(5, div(style = "text-align: center", tags$h3("Model Performance on Test Dataset")))
         ),
         fluidRow(
           column(7, div(
-            style = "height:100%; background-color:papayawhip; padding:20px; border-radius:10px; margin-bottom:30px;",
+            style = "height:100%; background-color:papayawhip; padding:20px; border-radius:10px; margin-bottom:35px;",
             p("The machine learning predicts lymphedema among breast cancer survivors by
             utilizing techniques of oversampling, which creates synthetic data of the minority class, and
             undersampling, which reduces instances of the majority class, alongside RUSBoost.
