@@ -428,7 +428,7 @@ server <- function(input, output) {
         Predicted.Lymphedema = ifelse(Pred.prob > 0.5, "Yes", "No")
       )
 
-      colnames(OutputTable) <- c("Patient ID", "Predicted Probability", "Predicted Lymphedema")
+      colnames(OutputTable) <- c("Patient ID", "Predicted Lymphedema Probability", "Predicted Lymphedema Outcome")
 
       OutputTable
     },
