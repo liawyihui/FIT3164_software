@@ -235,13 +235,18 @@ ui <- fluidPage(
         ),
         fluidRow(
           column(4, tags$h3("ROC Curve")),
-          column(4, tags$h3("Relative Variable Importance")),
-          column(4, tags$h3("____"))
+          column(4, tags$h3("Relative Variable Importance"))
         ),
         fluidRow(
           column(4, plotOutput("ROC", height = "450px")),
           column(4, plotOutput("variable_impt", height = "450px")),
-          column(4, tags$h3(""))
+          column(4, div(style = "padding-top: 30px", p("The Receiver Operating Characteristic (ROC) curve illustrates a classifier's performance across various decision 
+                      thresholds, plotting sensitivity against 1 - specificity. A higher area under the curve (AUC) signifies better 
+                      classifier performance. On the other hand, the relative variable importance bar chart depicts the significance of different 
+                      features in a predictive model. In this chart, LNN (lymph node number) receives the highest score, indicating its 
+                      importance in prediction, while sex has the lowest score, suggesting minimal impact.",
+                      style="font-size:17px; text-align:justify; color:black; background-color:papayawhip; padding:20px; border-radius:10px"
+                    )))
         ),
         fluidRow(
           column(12, div(style = "height:110px;", ""))
