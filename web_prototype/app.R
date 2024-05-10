@@ -9,12 +9,14 @@ library(ggpmisc)
 library(ebmc)
 library(openxlsx)
 library(shinyBS)
+library(shinyjs)
 
 # loading trained model
 load("final_model.RData")
 
 # define UI
 ui <- fluidPage(
+  useShinyjs(),
   theme = shinytheme("united"),
   tags$style(
     HTML("
@@ -115,7 +117,9 @@ ui <- fluidPage(
             tags$strong("Sample dataset:"),
             div(downloadButton("SampleDataset", "Download"), style = "margin-bottom: 20px;"),
             bsTooltip("DownloadData", "Please refrain from making any modifications to the Excel sheet. This includes not altering the sheet name, deleting columns, or changing column names. Ensure that all columns are filled in completely, and there are no missing values.",
-                      "right", options = list(container = "body"))
+              "right",
+              options = list(container = "body")
+            )
           ), # sidebarPanel
           mainPanel(
             verbatimTextOutput("txtout"), # txtout is generated from the server
@@ -350,6 +354,7 @@ server <- function(input, output) {
 
   observeEvent(input$start_assess, {
     updateTabsetPanel(inputId = "switcher", selected = "Prediction")
+    runjs("window.scrollTo(0, 0);")
   })
 
   # uploading dataset
@@ -724,8 +729,10 @@ server <- function(input, output) {
       labs(x = "True Label", y = "Predicted Label") +
       theme_bw() +
       coord_equal() +
-      theme(text = element_text(size = 16, face = "bold"),
-      axis.text = element_text(size = 16, face = "plain"))
+      theme(
+        text = element_text(size = 16, face = "bold"),
+        axis.text = element_text(size = 16, face = "plain")
+      )
 
     p
   })
