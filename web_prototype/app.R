@@ -14,6 +14,38 @@ library(shinyjs)
 # loading trained model
 load("final_model.RData")
 
+value_box_choices <- c(
+  "--Select--" = "select",
+  "Age" = "age",
+  "Gender" = "sex",
+  "Number of Lymph Node Harvested" = "lnn",
+  "Taxane-based Chemotherapy" = "tax",
+  "Radiation Fraction" = "fx",
+  "Amount of Radiation (Gray)" = "Gy",
+  "Breast Reconstruction" = "recon",
+  "Chemotherapy" = "che",
+  "Axilla Radiation Therapy" = "axi",
+  "Platelets" = "PLT",
+  "Procalcitonin" = "PCT",
+  "White Blood Cells" = "WBC",
+  "Absolute Neutrophil Count" = "ANC",
+  "Red Blood Cell" = "RBC",
+  "Mean Platelet Volume" = "MPV",
+  "Eosinophil" = "Eosinophil",
+  "Basophil" = "Basophil",
+  "Monocyte" = "Monocyte",
+  "Hematocrit" = "Hct",
+  "Segmented Neutrophil" = "Segmented.neutrophil",
+  "Mean Corpuscular Hemoglobin Concentration" = "MCHC",
+  "Hemoglobin" = "Hb",
+  "Lymphocyte" = "Lymphocyte",
+  "Mean Corpuscular Volume" = "MCV",
+  "Mean Corpuscular Hemoglobin" = "MCH",
+  "Potassium Serum" = "Potassium.serum",
+  "Chloride Serum" = "Chloride.serum",
+  "Sodium Serum" = "Sodium.serum"
+)
+
 # define UI
 ui <- fluidPage(
   useShinyjs(),
@@ -141,37 +173,7 @@ ui <- fluidPage(
               "Data Visualization",
               selectInput(
                 inputId = "feature", label = "Select feature for uploaded data visualization:",
-                choices = c(
-                  "--Select--" = "select",
-                  "Age" = "age",
-                  "Gender" = "sex",
-                  "Number of Lymph Node Harvested" = "lnn",
-                  "Taxane-based Chemotherapy" = "tax",
-                  "Radiation Fraction" = "fx",
-                  "Amount of Radiation (Gray)" = "Gy",
-                  "Breast Reconstruction" = "recon",
-                  "Chemotherapy" = "che",
-                  "Axilla Radiation Therapy" = "axi",
-                  "Platelets" = "PLT",
-                  "Procalcitonin" = "PCT",
-                  "White Blood Cells" = "WBC",
-                  "Absolute Neutrophil Count" = "ANC",
-                  "Red Blood Cell" = "RBC",
-                  "Mean Platelet Volume" = "MPV",
-                  "Eosinophil" = "Eosinophil",
-                  "Basophil" = "Basophil",
-                  "Monocyte" = "Monocyte",
-                  "Hematocrit" = "Hct",
-                  "Segmented Neutrophil" = "Segmented.neutrophil",
-                  "Mean Corpuscular Hemoglobin Concentration" = "MCHC",
-                  "Hemoglobin" = "Hb",
-                  "Lymphocyte" = "Lymphocyte",
-                  "Mean Corpuscular Volume" = "MCV",
-                  "Mean Corpuscular Hemoglobin" = "MCH",
-                  "Potassium Serum" = "Potassium.serum",
-                  "Chloride Serum" = "Chloride.serum",
-                  "Sodium Serum" = "Sodium.serum"
-                )
+                choices = value_box_choices
               ),
               plotOutput("FeatureDistribution")
             ),
@@ -179,37 +181,7 @@ ui <- fluidPage(
               "Prediction Results Visualization",
               selectInput(
                 inputId = "result_feature", label = "Select feature for results visualization:",
-                choices = c(
-                  "--Select--" = "select",
-                  "Age" = "age",
-                  "Gender" = "sex",
-                  "Number of Lymph Node Harvested" = "lnn",
-                  "Taxane-based Chemotherapy" = "tax",
-                  "Radiation Fraction" = "fx",
-                  "Amount of Radiation (Gray)" = "Gy",
-                  "Breast Reconstruction" = "recon",
-                  "Chemotherapy" = "che",
-                  "Axilla Radiation Therapy" = "axi",
-                  "Platelets" = "PLT",
-                  "Procalcitonin" = "PCT",
-                  "White Blood Cells" = "WBC",
-                  "Absolute Neutrophil Count" = "ANC",
-                  "Red Blood Cell" = "RBC",
-                  "Mean Platelet Volume" = "MPV",
-                  "Eosinophil" = "Eosinophil",
-                  "Basophil" = "Basophil",
-                  "Monocyte" = "Monocyte",
-                  "Hematocrit" = "Hct",
-                  "Segmented Neutrophil" = "Segmented.neutrophil",
-                  "Mean Corpuscular Hemoglobin Concentration" = "MCHC",
-                  "Hemoglobin" = "Hb",
-                  "Lymphocyte" = "Lymphocyte",
-                  "Mean Corpuscular Volume" = "MCV",
-                  "Mean Corpuscular Hemoglobin" = "MCH",
-                  "Potassium Serum" = "Potassium.serum",
-                  "Chloride Serum" = "Chloride.serum",
-                  "Sodium Serum" = "Sodium.serum"
-                )
+                choices = value_box_choices
               ),
               plotOutput("prediction_plot")
             )
@@ -298,6 +270,37 @@ ui <- fluidPage(
 
 # define server function
 server <- function(input, output) {
+  feature_names <- c(
+    "age" = "Age",
+    "sex" = "Gender",
+    "lnn" = "Number of Lymph Node Harvested",
+    "tax" = "Taxane-based Chemotherapy",
+    "fx" = "Radiation Fraction",
+    "Gy" = "Amount of Radiation (Gray)",
+    "recon" = "Breast Reconstruction",
+    "che" = "Chemotherapy",
+    "axi" = "Axilla Radiation Therapy",
+    "PLT" = "Platelets",
+    "PCT" = "Procalcitonin",
+    "WBC" = "White Blood Cells",
+    "ANC" = "Absolute Neutrophil Count",
+    "RBC" = "Red Blood Cell",
+    "MPV" = "Mean Platelet Volume",
+    "Eosinophil" = "Eosinophil",
+    "Basophil" = "Basophil",
+    "Monocyte" = "Monocyte",
+    "Hct" = "Hematocrit",
+    "Segmented.neutrophil" = "Segmented Neutrophil",
+    "MCHC" = "Mean Corpuscular Hemoglobin Concentration",
+    "Hb" = "Hemoglobin",
+    "Lymphocyte" = "Lymphocyte",
+    "MCV" = "Mean Corpuscular Volume",
+    "MCH" = "Mean Corpuscular Hemoglobin",
+    "Potassium.serum" = "Potassium Serum",
+    "Chloride.serum" = "Chloride Serum",
+    "Sodium.serum" = "Sodium Serum"
+  )
+
   prediction_results <- reactiveValues(data = NULL)
 
   output$lymphedema_img <- renderImage(
@@ -551,38 +554,6 @@ server <- function(input, output) {
     {
       validate(need(input$DataFile, "Please upload data file."))
       validate(need(input$result_feature != "select", "Please select a feature."))
-
-      feature_names <- c(
-        "age" = "Age",
-        "sex" = "Gender",
-        "lnn" = "Number of Lymph Node Harvested",
-        "tax" = "Taxane-based Chemotherapy",
-        "fx" = "Radiation Fraction",
-        "Gy" = "Amount of Radiation (Gray)",
-        "recon" = "Breast Reconstruction",
-        "che" = "Chemotherapy",
-        "axi" = "Axilla Radiation Therapy",
-        "PLT" = "Platelets",
-        "PCT" = "Procalcitonin",
-        "WBC" = "White Blood Cells",
-        "ANC" = "Absolute Neutrophil Count",
-        "RBC" = "Red Blood Cell",
-        "MPV" = "Mean Platelet Volume",
-        "Eosinophil" = "Eosinophil",
-        "Basophil" = "Basophil",
-        "Monocyte" = "Monocyte",
-        "Hct" = "Hematocrit",
-        "Segmented.neutrophil" = "Segmented Neutrophil",
-        "MCHC" = "Mean Corpuscular Hemoglobin Concentration",
-        "Hb" = "Hemoglobin",
-        "Lymphocyte" = "Lymphocyte",
-        "MCV" = "Mean Corpuscular Volume",
-        "MCH" = "Mean Corpuscular Hemoglobin",
-        "Potassium.serum" = "Potassium Serum",
-        "Chloride.serum" = "Chloride Serum",
-        "Sodium.serum" = "Sodium Serum"
-      )
-
       validate(need(input$result_feature %in% colnames(prediction_results$data), "Please ensure the selected feature is in the uploaded file."))
 
       converted_prediction_data <- prediction_results$data
@@ -634,37 +605,6 @@ server <- function(input, output) {
       }
 
       validate(need(input$feature %in% colnames(DataTable), "Please ensure the selected feature is in the uploaded file."))
-
-      feature_names <- c(
-        "age" = "Age",
-        "sex" = "Gender",
-        "lnn" = "Number of Lymph Node Harvested",
-        "tax" = "Taxane-based Chemotherapy",
-        "fx" = "Radiation Fraction",
-        "Gy" = "Amount of Radiation (Gray)",
-        "recon" = "Breast Reconstruction",
-        "che" = "Chemotherapy",
-        "axi" = "Axilla Radiation Therapy",
-        "PLT" = "Platelets",
-        "PCT" = "Procalcitonin",
-        "WBC" = "White Blood Cells",
-        "ANC" = "Absolute Neutrophil Count",
-        "RBC" = "Red Blood Cell",
-        "MPV" = "Mean Platelet Volume",
-        "Eosinophil" = "Eosinophil",
-        "Basophil" = "Basophil",
-        "Monocyte" = "Monocyte",
-        "Hct" = "Hematocrit",
-        "Segmented.neutrophil" = "Segmented Neutrophil",
-        "MCHC" = "Mean Corpuscular Hemoglobin Concentration",
-        "Hb" = "Hemoglobin",
-        "Lymphocyte" = "Lymphocyte",
-        "MCV" = "Mean Corpuscular Volume",
-        "MCH" = "Mean Corpuscular Hemoglobin",
-        "Potassium.serum" = "Potassium Serum",
-        "Chloride.serum" = "Chloride Serum",
-        "Sodium.serum" = "Sodium Serum"
-      )
 
       if (input$feature == "sex" || input$feature == "recon" || input$feature == "che" || input$feature == "axi" || input$feature == "tax") {
         if (input$feature == "sex") {
