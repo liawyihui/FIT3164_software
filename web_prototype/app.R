@@ -404,17 +404,23 @@ server <- function(input, output) {
   output$pred.lymphedema <- DT::renderDataTable(
     {
       validate(need(input$DataFile, "Missing data file!"))
+      prediction_results$data <- NULL
 
       inFile <- input$DataFile
       file_ext <- tools::file_ext(inFile$name)
 
       if (file_ext %in% c("xlsx", "xls")) {
+        available_sheets <- excel_sheets(inFile$datapath)
+        validate(need("DataTemplate" %in% available_sheets, "Sheet 'DataTemplate' not found in the Excel file. Please rename sheet."))
         DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
       } else if (file_ext == "csv") {
         DataTable <- read.csv(inFile$datapath)
       } else {
         stop("Unsupported file format.")
       }
+
+      validate(need(all(names(DataTable) %in% c("ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte", "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum")), "Dataset is missing required columns."))
+      validate(need(all(sapply(DataTable, function(x) !all(is.na(x)) && all(x != ""))), "Dataset contains missing values."))
 
       Normalized_DataTable <- DataTable
       # Exclude the ID variable before normalizing
@@ -451,12 +457,17 @@ server <- function(input, output) {
     file_ext <- tools::file_ext(inFile$name)
 
     if (file_ext %in% c("xlsx", "xls")) {
+      available_sheets <- excel_sheets(inFile$datapath)
+      validate(need("DataTemplate" %in% available_sheets, ""))
       DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
     } else if (file_ext == "csv") {
       DataTable <- read.csv(inFile$datapath)
     } else {
       stop("Unsupported file format.")
     }
+
+    validate(need(all(names(DataTable) %in% c("ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte", "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum")), ""))
+    validate(need(all(sapply(DataTable, function(x) !all(is.na(x)) && all(x != ""))), ""))
 
     DataTable$Patient.ID <- as.character(DataTable$ID)
 
