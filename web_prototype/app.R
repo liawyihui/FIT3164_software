@@ -422,7 +422,7 @@ server <- function(input, output) {
         stop("Unsupported file format.")
       }
 
-      validate(need(all(names(DataTable) %in% c("ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte", "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum")), "Dataset is missing required columns."))
+      validate(need(all(c("ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte", "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum") %in% colnames(DataTable)), "Dataset is missing required columns."))
       validate(need(all(sapply(DataTable, function(x) !all(is.na(x)) && all(x != ""))), "Dataset contains missing values."))
 
       Normalized_DataTable <- DataTable
@@ -469,7 +469,7 @@ server <- function(input, output) {
       stop("Unsupported file format.")
     }
 
-    validate(need(all(names(DataTable) %in% c("ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte", "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum")), ""))
+    validate(need(all(c("ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte", "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum") %in% colnames(DataTable)), ""))
     validate(need(all(sapply(DataTable, function(x) !all(is.na(x)) && all(x != ""))), ""))
 
     DataTable$Patient.ID <- as.character(DataTable$ID)
@@ -537,7 +537,7 @@ server <- function(input, output) {
       paste("Prediction_Results.xlsx", sep = "")
     },
     content = function(file) {
-      write.xlsx(prediction_results$data, file, rowNames = FALSE)
+      write.xlsx(prediction_results$data, file, rowNames = FALSE, sheetName = "DataTemplate")
     }
   )
 
@@ -553,8 +553,23 @@ server <- function(input, output) {
   output$prediction_plot <- renderPlot(
     {
       validate(need(input$DataFile, "Please upload data file."))
+
+      inFile <- input$DataFile
+      file_ext <- tools::file_ext(inFile$name)
+
+      if (file_ext %in% c("xlsx", "xls")) {
+        available_sheets <- excel_sheets(inFile$datapath)
+        validate(need("DataTemplate" %in% available_sheets, "Sheet 'DataTemplate' not found in the Excel file. Please rename sheet."))
+        DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
+      } else if (file_ext == "csv") {
+        DataTable <- read.csv(inFile$datapath)
+      } else {
+        stop("Unsupported file format.")
+      }
+
+      validate(need(all(c("ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte", "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum") %in% colnames(DataTable)), "Dataset is missing required columns."))
+      validate(need(all(sapply(DataTable, function(x) !all(is.na(x)) && all(x != ""))), "Dataset contains missing values."))
       validate(need(input$result_feature != "select", "Please select a feature."))
-      validate(need(input$result_feature %in% colnames(prediction_results$data), "Please ensure the selected feature is in the uploaded file."))
 
       converted_prediction_data <- prediction_results$data
 
@@ -590,13 +605,14 @@ server <- function(input, output) {
   output$FeatureDistribution <- renderPlot(
     {
       validate(need(input$DataFile, "Please upload data file."))
-      validate(need(input$feature != "select", "Please select a feature."))
 
       # Read the uploaded dataset
       inFile <- input$DataFile
       file_ext <- tools::file_ext(inFile$name)
 
       if (file_ext %in% c("xlsx", "xls")) {
+        available_sheets <- excel_sheets(inFile$datapath)
+        validate(need("DataTemplate" %in% available_sheets, "Sheet 'DataTemplate' not found in the Excel file. Please rename sheet."))
         DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
       } else if (file_ext == "csv") {
         DataTable <- read.csv(inFile$datapath)
@@ -604,6 +620,7 @@ server <- function(input, output) {
         stop("Unsupported file format.")
       }
 
+      validate(need(input$feature != "select", "Please select a feature."))
       validate(need(input$feature %in% colnames(DataTable), "Please ensure the selected feature is in the uploaded file."))
 
       if (input$feature == "sex" || input$feature == "recon" || input$feature == "che" || input$feature == "axi" || input$feature == "tax") {
