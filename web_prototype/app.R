@@ -422,12 +422,13 @@ server <- function(input, output) {
         stop("Unsupported file format.")
       }
 
-      validate(need(all(c("ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte", "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum") %in% colnames(DataTable)), "Dataset is missing required columns."))
+      required_columns <- c("ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte", "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum")
+      validate(need(all(required_columns %in% colnames(DataTable)), "Dataset is missing required columns."))
       validate(need(all(sapply(DataTable, function(x) !all(is.na(x)) && all(x != ""))), "Dataset contains missing values."))
 
       Normalized_DataTable <- DataTable
       # Exclude the ID variable before normalizing
-      independent_variables <- setdiff(names(Normalized_DataTable), c("ID"))
+      independent_variables <- setdiff(required_columns, c("ID"))
       Normalized_DataTable[, independent_variables] <- scale(Normalized_DataTable[, independent_variables])
 
       Pred.prob <- predict(model, Normalized_DataTable, type = "prob")
@@ -469,14 +470,16 @@ server <- function(input, output) {
       stop("Unsupported file format.")
     }
 
-    validate(need(all(c("ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte", "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum") %in% colnames(DataTable)), ""))
+    required_columns <- c("ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte", "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum")
+    validate(need(all(required_columns %in% colnames(DataTable)), ""))
     validate(need(all(sapply(DataTable, function(x) !all(is.na(x)) && all(x != ""))), ""))
 
     DataTable$Patient.ID <- as.character(DataTable$ID)
 
+    required_columns <- c(required_columns, "Patient.ID")
     Normalized_DataTable <- DataTable
     # Exclude the ID variables before normalizing
-    independent_variables <- setdiff(names(Normalized_DataTable), c("Patient.ID", "ID"))
+    independent_variables <- setdiff(required_columns, c("Patient.ID", "ID"))
     Normalized_DataTable[, independent_variables] <- scale(Normalized_DataTable[, independent_variables])
 
     Pred.prob <- predict(model, Normalized_DataTable, type = "prob")
