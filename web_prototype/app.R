@@ -423,7 +423,7 @@ server <- function(input, output) {
       }
 
       required_columns <- c("ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte", "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum")
-      validate(need(all(required_columns %in% colnames(DataTable)), "Dataset is missing required columns."))
+      validate(need(all(required_columns %in% colnames(DataTable)), "Dataset is missing required column(s) or wrong column name(s)."))
       validate(need(all(sapply(DataTable, function(x) !all(is.na(x)) && all(x != ""))), "Dataset contains missing values."))
 
       Normalized_DataTable <- DataTable
@@ -570,7 +570,7 @@ server <- function(input, output) {
         stop("Unsupported file format.")
       }
 
-      validate(need(all(c("ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte", "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum") %in% colnames(DataTable)), "Dataset is missing required columns."))
+      validate(need(all(c("ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte", "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum") %in% colnames(DataTable)), "Dataset is missing required column(s) or wrong column name(s)."))
       validate(need(all(sapply(DataTable, function(x) !all(is.na(x)) && all(x != ""))), "Dataset contains missing values."))
       validate(need(input$result_feature != "select", "Please select a feature."))
 
