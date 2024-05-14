@@ -368,8 +368,6 @@ server <- function(input, output) {
     inFile <- input$DataFile
     file_ext <- tools::file_ext(inFile$name)
 
-    validate(need(file_ext %in% c("xlsx", "xls", "csv"), "Error: Unsupported file format."))
-
     if (file_ext %in% c("xlsx", "xls")) {
       DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
     } else if (file_ext == "csv") {
@@ -419,7 +417,7 @@ server <- function(input, output) {
 
       if (file_ext %in% c("xlsx", "xls")) {
         available_sheets <- excel_sheets(inFile$datapath)
-        validate(need("DataTemplate" %in% available_sheets, "Sheet 'DataTemplate' not found in the Excel file. Please rename sheet."))
+        validate(need("DataTemplate" %in% available_sheets, "Sheet 'DataTemplate' not found in the Excel file. Please rename the sheet."))
         DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
       } else if (file_ext == "csv") {
         DataTable <- read.csv(inFile$datapath)
@@ -590,7 +588,7 @@ server <- function(input, output) {
 
       if (file_ext %in% c("xlsx", "xls")) {
         available_sheets <- excel_sheets(inFile$datapath)
-        validate(need("DataTemplate" %in% available_sheets, "Sheet 'DataTemplate' not found in the Excel file. Please rename sheet."))
+        validate(need("DataTemplate" %in% available_sheets, "Sheet 'DataTemplate' not found in the Excel file. Please rename the sheet."))
         DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
       } else if (file_ext == "csv") {
         DataTable <- read.csv(inFile$datapath)
@@ -657,7 +655,7 @@ server <- function(input, output) {
 
       if (file_ext %in% c("xlsx", "xls")) {
         available_sheets <- excel_sheets(inFile$datapath)
-        validate(need("DataTemplate" %in% available_sheets, "Sheet 'DataTemplate' not found in the Excel file. Please rename sheet."))
+        validate(need("DataTemplate" %in% available_sheets, "Sheet 'DataTemplate' not found in the Excel file. Please rename the sheet."))
         DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
       } else if (file_ext == "csv") {
         DataTable <- read.csv(inFile$datapath)
