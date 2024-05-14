@@ -656,7 +656,7 @@ server <- function(input, output) {
       if (file_ext %in% c("xlsx", "xls")) {
         available_sheets <- excel_sheets(inFile$datapath)
         validate(need("DataTemplate" %in% available_sheets, "Error: Sheet 'DataTemplate' not found in the Excel file. Please rename the sheet."))
-        DataTable <- read_excel(inFile$datapath, sheet = "Error: DataTemplate")
+        DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
       } else if (file_ext == "csv") {
         DataTable <- read.csv(inFile$datapath)
       }
