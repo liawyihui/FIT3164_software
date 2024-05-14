@@ -429,7 +429,7 @@ server <- function(input, output) {
 
       # Validation for data format
       validate(need(all(sapply(DataTable, function(x) !all(is.na(x)) && all(x != ""))), "Dataset contains missing values."))
-      validate(need(all(sapply(DataTable, function(x) all(is.numeric(x)))), "Incorrect data format. Data must be numeric."))
+      validate(need(all(sapply(DataTable[, setdiff(colnames(DataTable), "ID")], function(x) all(is.numeric(x)))), "Incorrect data format. Data must be numeric."))
 
       # Validation for categorical data
       validate(need(all(DataTable[["sex"]] %in% c(1, 2)), "Data for sex column must contain 1(Male) or 2(Female) only."))
@@ -488,7 +488,7 @@ server <- function(input, output) {
 
     # Validation for data format
     validate(need(all(sapply(DataTable, function(x) !all(is.na(x)) && all(x != ""))), ""))
-    validate(need(all(sapply(DataTable, function(x) all(is.numeric(x)))), ""))
+    validate(need(all(sapply(DataTable[, setdiff(colnames(DataTable), "ID")], function(x) all(is.numeric(x)))), ""))
 
     # Validation for categorical data
     validate(need(all(DataTable[["sex"]] %in% c(1, 2)), ""))
@@ -513,7 +513,7 @@ server <- function(input, output) {
     )
 
     Pred.Table2 <- data.frame(
-      Patient.ID = as.factor(DataTable$ID),
+      Patient.ID = DataTable$ID,
       Predicted.Probability = round(Pred.prob, 3),
       Predicted.Lymphedema = ifelse(Pred.prob > 0.5, "Yes", "No"),
       Patient.Age = round(DataTable$age, 3),
@@ -521,7 +521,7 @@ server <- function(input, output) {
     )
 
     RowIndex <- input$pred.lymphedema_rows_selected
-    ID <- ifelse(is.na(RowIndex), "NA", Pred.Table$Patient.ID[RowIndex])
+    ID <- ifelse(is.na(RowIndex), "NA", Pred.Table2$Patient.ID[RowIndex])
     DisplayID <- paste("", ifelse(is.numeric(RowIndex), ID, "N/A"), sep = " ")
     Age <- ifelse(is.na(RowIndex), "NA", Pred.Table2$Patient.Age[RowIndex])
     DisplayAge <- paste("", ifelse(is.numeric(RowIndex), Age, "N/A"), sep = " ")
@@ -598,7 +598,7 @@ server <- function(input, output) {
 
       # Validation for data format
       validate(need(all(sapply(DataTable, function(x) !all(is.na(x)) && all(x != ""))), "Dataset contains missing values."))
-      validate(need(all(sapply(DataTable, function(x) all(is.numeric(x)))), "Incorrect data format. Data must be numeric."))
+      validate(need(all(sapply(DataTable[, setdiff(colnames(DataTable), "ID")], function(x) all(is.numeric(x)))), "Incorrect data format. Data must be numeric."))
 
       # Validation for categorical data
       validate(need(all(DataTable[["sex"]] %in% c(1, 2)), "Data for sex column must contain 1(Male) or 2(Female) only."))
@@ -662,7 +662,7 @@ server <- function(input, output) {
 
       # Validation for data format
       validate(need(all(sapply(DataTable, function(x) !all(is.na(x)) && all(x != ""))), "Dataset contains missing values."))
-      validate(need(all(sapply(DataTable, function(x) all(is.numeric(x)))), "Incorrect data format. Data must be numeric."))
+      validate(need(all(sapply(DataTable[, setdiff(colnames(DataTable), "ID")], function(x) all(is.numeric(x)))), "Incorrect data format. Data must be numeric."))
 
       # Validation for categorical data
       validate(need(all(DataTable[["sex"]] %in% c(1, 2)), "Data for sex column must contain 1(Male) or 2(Female) only."))
