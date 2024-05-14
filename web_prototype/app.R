@@ -433,11 +433,11 @@ server <- function(input, output) {
       validate(need(all(sapply(DataTable[, setdiff(colnames(DataTable), "ID")], function(x) all(is.numeric(x)))), "Incorrect data format. Data must be numeric."))
 
       # Validation for categorical data
-      validate(need(all(DataTable[["sex"]] %in% c(1, 2)), "Data for sex column must contain 1(Male) or 2(Female) only."))
-      validate(need(all(DataTable[["recon"]] %in% c(0, 1, 2)), "Data for recon column must contain 0(No reconstruction), 1(TRAM flap) or 2(Implant) only."))
-      validate(need(all(DataTable[["tax"]] %in% c(0, 1, 2)), "Data for tax column must contain 0(No taxane), 1(Type 1) or 2(Type 2) only."))
-      validate(need(all(DataTable[["che"]] %in% c(0, 1)), "Data for che column must contain 0(No) or 1(Yes) only."))
-      validate(need(all(DataTable[["axi"]] %in% c(0, 1)), "Data for axi column must contain 0(No) or 1(Yes) only."))
+      validate(need(all(DataTable[["sex"]] %in% c(1, 2)), "Data for 'sex' column must contain 1(Male) or 2(Female) only."))
+      validate(need(all(DataTable[["recon"]] %in% c(0, 1, 2)), "Data for 'recon' column must contain 0(No reconstruction), 1(TRAM flap) or 2(Implant) only."))
+      validate(need(all(DataTable[["tax"]] %in% c(0, 1, 2)), "Data for 'tax' column must contain 0(No taxane), 1(Type 1) or 2(Type 2) only."))
+      validate(need(all(DataTable[["che"]] %in% c(0, 1)), "Data for 'che' column must contain 0(No) or 1(Yes) only."))
+      validate(need(all(DataTable[["axi"]] %in% c(0, 1)), "Data for 'axi' column must contain 0(No) or 1(Yes) only."))
 
       Normalized_DataTable <- DataTable
       # Exclude the ID variable before normalizing
@@ -602,11 +602,11 @@ server <- function(input, output) {
       validate(need(all(sapply(DataTable[, setdiff(colnames(DataTable), "ID")], function(x) all(is.numeric(x)))), "Incorrect data format. Data must be numeric."))
 
       # Validation for categorical data
-      validate(need(all(DataTable[["sex"]] %in% c(1, 2)), "Data for sex column must contain 1(Male) or 2(Female) only."))
-      validate(need(all(DataTable[["recon"]] %in% c(0, 1, 2)), "Data for recon column must contain 0(No reconstruction), 1(TRAM flap) or 2(Implant) only."))
-      validate(need(all(DataTable[["tax"]] %in% c(0, 1, 2)), "Data for tax column must contain 0(No taxane), 1(Type 1) or 2(Type 2) only."))
-      validate(need(all(DataTable[["che"]] %in% c(0, 1)), "Data for che column must contain 0(No) or 1(Yes) only."))
-      validate(need(all(DataTable[["axi"]] %in% c(0, 1)), "Data for axi column must contain 0(No) or 1(Yes) only."))
+      validate(need(all(DataTable[["sex"]] %in% c(1, 2)), "Data for 'sex' column must contain 1(Male) or 2(Female) only."))
+      validate(need(all(DataTable[["recon"]] %in% c(0, 1, 2)), "Data for 'recon' column must contain 0(No reconstruction), 1(TRAM flap) or 2(Implant) only."))
+      validate(need(all(DataTable[["tax"]] %in% c(0, 1, 2)), "Data for 'tax' column must contain 0(No taxane), 1(Type 1) or 2(Type 2) only."))
+      validate(need(all(DataTable[["che"]] %in% c(0, 1)), "Data for 'che' column must contain 0(No) or 1(Yes) only."))
+      validate(need(all(DataTable[["axi"]] %in% c(0, 1)), "Data for 'axi' column must contain 0(No) or 1(Yes) only."))
 
       # Validation of selecting feature
       validate(need(input$result_feature != "select", "Please select a feature."))
@@ -666,11 +666,11 @@ server <- function(input, output) {
       validate(need(all(sapply(DataTable[, setdiff(colnames(DataTable), "ID")], function(x) all(is.numeric(x)))), "Incorrect data format. Data must be numeric."))
 
       # Validation for categorical data
-      validate(need(all(DataTable[["sex"]] %in% c(1, 2)), "Data for sex column must contain 1(Male) or 2(Female) only."))
-      validate(need(all(DataTable[["recon"]] %in% c(0, 1, 2)), "Data for recon column must contain 0(No reconstruction), 1(TRAM flap) or 2(Implant) only."))
-      validate(need(all(DataTable[["tax"]] %in% c(0, 1, 2)), "Data for tax column must contain 0(No taxane), 1(Type 1) or 2(Type 2) only."))
-      validate(need(all(DataTable[["che"]] %in% c(0, 1)), "Data for che column must contain 0(No) or 1(Yes) only."))
-      validate(need(all(DataTable[["axi"]] %in% c(0, 1)), "Data for axi column must contain 0(No) or 1(Yes) only."))
+      validate(need(all(DataTable[["sex"]] %in% c(1, 2)), "Data for 'sex' column must contain 1(Male) or 2(Female) only."))
+      validate(need(all(DataTable[["recon"]] %in% c(0, 1, 2)), "Data for 'recon' column must contain 0(No reconstruction), 1(TRAM flap) or 2(Implant) only."))
+      validate(need(all(DataTable[["tax"]] %in% c(0, 1, 2)), "Data for 'tax' column must contain 0(No taxane), 1(Type 1) or 2(Type 2) only."))
+      validate(need(all(DataTable[["che"]] %in% c(0, 1)), "Data for 'che' column must contain 0(No) or 1(Yes) only."))
+      validate(need(all(DataTable[["axi"]] %in% c(0, 1)), "Data for 'axi' column must contain 0(No) or 1(Yes) only."))
 
       # Validation of selected feature
       validate(need(input$feature != "select", "Please select a feature."))
