@@ -417,7 +417,7 @@ server <- function(input, output) {
 
       if (file_ext %in% c("xlsx", "xls")) {
         available_sheets <- excel_sheets(inFile$datapath)
-        validate(need("DataTemplate" %in% available_sheets, "Sheet 'DataTemplate' not found in the Excel file. Please rename the sheet."))
+        validate(need("DataTemplate" %in% available_sheets, "Error: Sheet 'DataTemplate' not found in the Excel file. Please rename the sheet."))
         DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
       } else if (file_ext == "csv") {
         DataTable <- read.csv(inFile$datapath)
@@ -426,18 +426,18 @@ server <- function(input, output) {
       required_columns <- c("ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte", "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum")
 
       # Validation for columns
-      validate(need(all(required_columns %in% colnames(DataTable)), "Dataset is missing required column(s) or wrong column name(s)."))
+      validate(need(all(required_columns %in% colnames(DataTable)), "Error: Dataset is missing required column(s) or wrong column name(s)."))
 
       # Validation for data format
-      validate(need(all(sapply(DataTable, function(x) !all(is.na(x)) && all(x != ""))), "Dataset contains missing values."))
-      validate(need(all(sapply(DataTable[, setdiff(colnames(DataTable), "ID")], function(x) all(is.numeric(x)))), "Incorrect data format. Data must be numeric."))
+      validate(need(all(sapply(DataTable, function(x) !all(is.na(x)) && all(x != ""))), "Error: Dataset contains missing values."))
+      validate(need(all(sapply(DataTable[, setdiff(colnames(DataTable), "ID")], function(x) all(is.numeric(x)))), "Error: Incorrect data format. Data must be numeric."))
 
       # Validation for categorical data
-      validate(need(all(DataTable[["sex"]] %in% c(1, 2)), "Data for 'sex' column must contain 1(Male) or 2(Female) only."))
-      validate(need(all(DataTable[["recon"]] %in% c(0, 1, 2)), "Data for 'recon' column must contain 0(No reconstruction), 1(TRAM flap) or 2(Implant) only."))
-      validate(need(all(DataTable[["tax"]] %in% c(0, 1, 2)), "Data for 'tax' column must contain 0(No taxane), 1(Type 1) or 2(Type 2) only."))
-      validate(need(all(DataTable[["che"]] %in% c(0, 1)), "Data for 'che' column must contain 0(No) or 1(Yes) only."))
-      validate(need(all(DataTable[["axi"]] %in% c(0, 1)), "Data for 'axi' column must contain 0(No) or 1(Yes) only."))
+      validate(need(all(DataTable[["sex"]] %in% c(1, 2)), "Error: Data for 'sex' column must contain 1(Male) or 2(Female) only."))
+      validate(need(all(DataTable[["recon"]] %in% c(0, 1, 2)), "Error: Data for 'recon' column must contain 0(No reconstruction), 1(TRAM flap) or 2(Implant) only."))
+      validate(need(all(DataTable[["tax"]] %in% c(0, 1, 2)), "Error: Data for 'tax' column must contain 0(No taxane), 1(Type 1) or 2(Type 2) only."))
+      validate(need(all(DataTable[["che"]] %in% c(0, 1)), "Error: Data for 'che' column must contain 0(No) or 1(Yes) only."))
+      validate(need(all(DataTable[["axi"]] %in% c(0, 1)), "Error: Data for 'axi' column must contain 0(No) or 1(Yes) only."))
 
       Normalized_DataTable <- DataTable
       # Exclude the ID variable before normalizing
@@ -588,7 +588,7 @@ server <- function(input, output) {
 
       if (file_ext %in% c("xlsx", "xls")) {
         available_sheets <- excel_sheets(inFile$datapath)
-        validate(need("DataTemplate" %in% available_sheets, "Sheet 'DataTemplate' not found in the Excel file. Please rename the sheet."))
+        validate(need("DataTemplate" %in% available_sheets, "Error: Sheet 'DataTemplate' not found in the Excel file. Please rename the sheet."))
         DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
       } else if (file_ext == "csv") {
         DataTable <- read.csv(inFile$datapath)
@@ -598,19 +598,19 @@ server <- function(input, output) {
       validate(need(all(c("ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte", "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum") %in% colnames(DataTable)), "Dataset is missing required column(s) or wrong column name(s)."))
 
       # Validation for data format
-      validate(need(all(sapply(DataTable, function(x) !all(is.na(x)) && all(x != ""))), "Dataset contains missing values."))
-      validate(need(all(sapply(DataTable[, setdiff(colnames(DataTable), "ID")], function(x) all(is.numeric(x)))), "Incorrect data format. Data must be numeric."))
+      validate(need(all(sapply(DataTable, function(x) !all(is.na(x)) && all(x != ""))), "Error: Dataset contains missing values."))
+      validate(need(all(sapply(DataTable[, setdiff(colnames(DataTable), "ID")], function(x) all(is.numeric(x)))), "Error: Incorrect data format. Data must be numeric."))
 
       # Validation for categorical data
-      validate(need(all(DataTable[["sex"]] %in% c(1, 2)), "Data for 'sex' column must contain 1(Male) or 2(Female) only."))
-      validate(need(all(DataTable[["recon"]] %in% c(0, 1, 2)), "Data for 'recon' column must contain 0(No reconstruction), 1(TRAM flap) or 2(Implant) only."))
-      validate(need(all(DataTable[["tax"]] %in% c(0, 1, 2)), "Data for 'tax' column must contain 0(No taxane), 1(Type 1) or 2(Type 2) only."))
-      validate(need(all(DataTable[["che"]] %in% c(0, 1)), "Data for 'che' column must contain 0(No) or 1(Yes) only."))
-      validate(need(all(DataTable[["axi"]] %in% c(0, 1)), "Data for 'axi' column must contain 0(No) or 1(Yes) only."))
+      validate(need(all(DataTable[["sex"]] %in% c(1, 2)), "Error: Data for 'sex' column must contain 1(Male) or 2(Female) only."))
+      validate(need(all(DataTable[["recon"]] %in% c(0, 1, 2)), "Error: Data for 'recon' column must contain 0(No reconstruction), 1(TRAM flap) or 2(Implant) only."))
+      validate(need(all(DataTable[["tax"]] %in% c(0, 1, 2)), "Error: Data for 'tax' column must contain 0(No taxane), 1(Type 1) or 2(Type 2) only."))
+      validate(need(all(DataTable[["che"]] %in% c(0, 1)), "Error: Data for 'che' column must contain 0(No) or 1(Yes) only."))
+      validate(need(all(DataTable[["axi"]] %in% c(0, 1)), "Error: Data for 'axi' column must contain 0(No) or 1(Yes) only."))
 
       # Validation of selecting feature
       validate(need(input$result_feature != "select", "Please select a feature."))
-      validate(need(input$feature %in% colnames(DataTable), "Please ensure the selected feature is in the uploaded file."))
+      validate(need(input$feature %in% colnames(DataTable), "Error: Please ensure the selected feature is in the uploaded file."))
 
       converted_prediction_data <- prediction_results$data
 
@@ -655,26 +655,26 @@ server <- function(input, output) {
 
       if (file_ext %in% c("xlsx", "xls")) {
         available_sheets <- excel_sheets(inFile$datapath)
-        validate(need("DataTemplate" %in% available_sheets, "Sheet 'DataTemplate' not found in the Excel file. Please rename the sheet."))
-        DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
+        validate(need("DataTemplate" %in% available_sheets, "Error: Sheet 'DataTemplate' not found in the Excel file. Please rename the sheet."))
+        DataTable <- read_excel(inFile$datapath, sheet = "Error: DataTemplate")
       } else if (file_ext == "csv") {
         DataTable <- read.csv(inFile$datapath)
       }
 
       # Validation for data format
-      validate(need(all(sapply(DataTable, function(x) !all(is.na(x)) && all(x != ""))), "Dataset contains missing values."))
-      validate(need(all(sapply(DataTable[, setdiff(colnames(DataTable), "ID")], function(x) all(is.numeric(x)))), "Incorrect data format. Data must be numeric."))
+      validate(need(all(sapply(DataTable, function(x) !all(is.na(x)) && all(x != ""))), "Error: Dataset contains missing values."))
+      validate(need(all(sapply(DataTable[, setdiff(colnames(DataTable), "ID")], function(x) all(is.numeric(x)))), "Error: Incorrect data format. Data must be numeric."))
 
       # Validation for categorical data
-      validate(need(all(DataTable[["sex"]] %in% c(1, 2)), "Data for 'sex' column must contain 1(Male) or 2(Female) only."))
-      validate(need(all(DataTable[["recon"]] %in% c(0, 1, 2)), "Data for 'recon' column must contain 0(No reconstruction), 1(TRAM flap) or 2(Implant) only."))
-      validate(need(all(DataTable[["tax"]] %in% c(0, 1, 2)), "Data for 'tax' column must contain 0(No taxane), 1(Type 1) or 2(Type 2) only."))
-      validate(need(all(DataTable[["che"]] %in% c(0, 1)), "Data for 'che' column must contain 0(No) or 1(Yes) only."))
-      validate(need(all(DataTable[["axi"]] %in% c(0, 1)), "Data for 'axi' column must contain 0(No) or 1(Yes) only."))
+      validate(need(all(DataTable[["sex"]] %in% c(1, 2)), "Error: Data for 'sex' column must contain 1(Male) or 2(Female) only."))
+      validate(need(all(DataTable[["recon"]] %in% c(0, 1, 2)), "Error: Data for 'recon' column must contain 0(No reconstruction), 1(TRAM flap) or 2(Implant) only."))
+      validate(need(all(DataTable[["tax"]] %in% c(0, 1, 2)), "Error: Data for 'tax' column must contain 0(No taxane), 1(Type 1) or 2(Type 2) only."))
+      validate(need(all(DataTable[["che"]] %in% c(0, 1)), "Error: Data for 'che' column must contain 0(No) or 1(Yes) only."))
+      validate(need(all(DataTable[["axi"]] %in% c(0, 1)), "Error: Data for 'axi' column must contain 0(No) or 1(Yes) only."))
 
       # Validation of selected feature
       validate(need(input$feature != "select", "Please select a feature."))
-      validate(need(input$feature %in% colnames(DataTable), "Please ensure the selected feature is in the uploaded file."))
+      validate(need(input$feature %in% colnames(DataTable), "Error: Please ensure the selected feature is in the uploaded file."))
 
       if (input$feature == "sex" || input$feature == "recon" || input$feature == "che" || input$feature == "axi" || input$feature == "tax") {
         if (input$feature == "sex") {
