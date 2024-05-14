@@ -63,6 +63,9 @@ ui <- fluidPage(
            .navbar-brand{
               padding-left: 25px;
             }
+            .shiny-output-error-validation {
+              color: #ff0000;
+            }
            ")
   ),
   navbarPage(
@@ -365,12 +368,12 @@ server <- function(input, output) {
     inFile <- input$DataFile
     file_ext <- tools::file_ext(inFile$name)
 
+    validate(need(file_ext %in% c("xlsx", "xls", "csv"), "Error: Unsupported file format."))
+
     if (file_ext %in% c("xlsx", "xls")) {
       DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
     } else if (file_ext == "csv") {
       DataTable <- read.csv(inFile$datapath)
-    } else {
-      stop("Unsupported file format.")
     }
 
     return(DataTable)
@@ -412,14 +415,14 @@ server <- function(input, output) {
       inFile <- input$DataFile
       file_ext <- tools::file_ext(inFile$name)
 
+      validate(need(file_ext %in% c("xlsx", "xls", "csv"), "Error: Unsupported file format."))
+
       if (file_ext %in% c("xlsx", "xls")) {
         available_sheets <- excel_sheets(inFile$datapath)
         validate(need("DataTemplate" %in% available_sheets, "Sheet 'DataTemplate' not found in the Excel file. Please rename sheet."))
         DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
       } else if (file_ext == "csv") {
         DataTable <- read.csv(inFile$datapath)
-      } else {
-        stop("Unsupported file format.")
       }
 
       required_columns <- c("ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte", "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum")
@@ -472,14 +475,14 @@ server <- function(input, output) {
     inFile <- input$DataFile
     file_ext <- tools::file_ext(inFile$name)
 
+    validate(need(file_ext %in% c("xlsx", "xls", "csv"), ""))
+
     if (file_ext %in% c("xlsx", "xls")) {
       available_sheets <- excel_sheets(inFile$datapath)
       validate(need("DataTemplate" %in% available_sheets, ""))
       DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
     } else if (file_ext == "csv") {
       DataTable <- read.csv(inFile$datapath)
-    } else {
-      stop("Unsupported file format.")
     }
 
     required_columns <- c("ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte", "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum")
@@ -583,14 +586,14 @@ server <- function(input, output) {
       inFile <- input$DataFile
       file_ext <- tools::file_ext(inFile$name)
 
+      validate(need(file_ext %in% c("xlsx", "xls", "csv"), "Error: Unsupported file format."))
+
       if (file_ext %in% c("xlsx", "xls")) {
         available_sheets <- excel_sheets(inFile$datapath)
         validate(need("DataTemplate" %in% available_sheets, "Sheet 'DataTemplate' not found in the Excel file. Please rename sheet."))
         DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
       } else if (file_ext == "csv") {
         DataTable <- read.csv(inFile$datapath)
-      } else {
-        stop("Unsupported file format.")
       }
 
       # Validation for columns
@@ -650,14 +653,14 @@ server <- function(input, output) {
       inFile <- input$DataFile
       file_ext <- tools::file_ext(inFile$name)
 
+      validate(need(file_ext %in% c("xlsx", "xls", "csv"), "Error: Unsupported file format."))
+
       if (file_ext %in% c("xlsx", "xls")) {
         available_sheets <- excel_sheets(inFile$datapath)
         validate(need("DataTemplate" %in% available_sheets, "Sheet 'DataTemplate' not found in the Excel file. Please rename sheet."))
         DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
       } else if (file_ext == "csv") {
         DataTable <- read.csv(inFile$datapath)
-      } else {
-        stop("Unsupported file format.")
       }
 
       # Validation for data format
