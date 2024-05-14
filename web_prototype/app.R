@@ -407,7 +407,7 @@ server <- function(input, output) {
   # predicting lymphedema for the user-input dataset
   output$pred.lymphedema <- DT::renderDataTable(
     {
-      validate(need(input$DataFile, "Missing data file!"))
+      validate(need(input$DataFile, "Please upload data file."))
       prediction_results$data <- NULL
 
       inFile <- input$DataFile
