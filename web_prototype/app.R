@@ -1,4 +1,4 @@
-# loading necessary libraries
+# Load necessary libraries
 library(shiny)
 library(shinythemes)
 library(shinydashboard)
@@ -11,9 +11,10 @@ library(openxlsx)
 library(shinyBS)
 library(shinyjs)
 
-# loading trained model
+# Load trained model
 load("final_model.RData")
 
+# For visualization dropdown
 value_box_choices <- c(
   "--Select--" = "select",
   "Age (age)" = "age",
@@ -46,10 +47,11 @@ value_box_choices <- c(
   "Sodium Serum (Sodium.serum)" = "Sodium.serum"
 )
 
-# define UI
+# Define UI
 ui <- fluidPage(
   useShinyjs(),
   theme = shinytheme("united"),
+  # Add styling
   tags$style(
     HTML("
            .container-fluid {
@@ -68,10 +70,12 @@ ui <- fluidPage(
             }
            ")
   ),
+  # Main page
   navbarPage(
     "Lymphedema Prediction",
     tabsetPanel(
       id = "switcher",
+      # Home tab
       tabPanel(
         "Home",
         fluidRow(
@@ -137,9 +141,11 @@ ui <- fluidPage(
           column(12, div(style = "height:110px;", ""))
         )
       ), # Navbar 1, tabPanel
+      # Prediction tab
       tabPanel(
         "Prediction",
         fluidRow(
+          # Upload dataset and download template or sample dataset
           sidebarPanel(
             tags$h3("Upload dataset"),
             fileInput("DataFile", "Upload dataset file to predict Lymphedema:",
@@ -156,6 +162,7 @@ ui <- fluidPage(
               options = list(container = "body")
             )
           ), # sidebarPanel
+          # Display prediction results
           mainPanel(
             verbatimTextOutput("txtout"), # txtout is generated from the server
             tableOutput("tabledata"), # Prediction results table
@@ -171,7 +178,9 @@ ui <- fluidPage(
           )
         ), # mainPanel
         fluidRow(
+          # Visualization
           tabsetPanel(
+            # Visualize uploaded dataset tab
             tabPanel(
               "Data Visualization",
               selectInput(
@@ -180,6 +189,7 @@ ui <- fluidPage(
               ),
               plotOutput("FeatureDistribution")
             ),
+            # Visualize prediction results tab
             tabPanel(
               "Prediction Results Visualization",
               selectInput(
@@ -190,11 +200,12 @@ ui <- fluidPage(
             )
           ),
           style = "margin-top: 30px;"
-        ), # Plot histogram
+        ),
         fluidRow(
           column(12, div(style = "height:110px;", ""))
         )
       ), # Navbar 2, tabPanel
+      # About model tab
       tabPanel(
         "About Model",
         fluidRow(
@@ -250,6 +261,7 @@ ui <- fluidPage(
       ) # Navbar 3, tabPanel
     ) # tabsetPanel
   ), # navbarPage
+  # Footer
   tags$footer(
     style = "background-color: #CCCCCC; padding: 10px; text-align: center;",
     p(
@@ -271,8 +283,9 @@ ui <- fluidPage(
   )
 ) # fluidPage
 
-# define server function
+# Define server function
 server <- function(input, output) {
+  # For visualization dropdown
   feature_names <- c(
     "age" = "Age",
     "sex" = "Gender",
@@ -304,8 +317,10 @@ server <- function(input, output) {
     "Sodium.serum" = "Sodium Serum"
   )
 
+  # Store prediction results for prediction results visualization
   prediction_results <- reactiveValues(data = NULL)
 
+  # Ouput image on home tab
   output$lymphedema_img <- renderImage(
     {
       list(
@@ -317,6 +332,7 @@ server <- function(input, output) {
     deleteFile = FALSE
   )
 
+  # Ouput image on home tab
   output$lymphedema2_img <- renderImage(
     {
       list(
@@ -328,6 +344,7 @@ server <- function(input, output) {
     deleteFile = FALSE
   )
 
+  # Ouput image on home tab
   output$number1_img <- renderImage(
     {
       list(
@@ -338,6 +355,7 @@ server <- function(input, output) {
     deleteFile = FALSE
   )
 
+  # Ouput image on home tab
   output$number2_img <- renderImage(
     {
       list(
@@ -348,6 +366,7 @@ server <- function(input, output) {
     deleteFile = FALSE
   )
 
+  # Ouput image on home tab
   output$number3_img <- renderImage(
     {
       list(
@@ -358,16 +377,21 @@ server <- function(input, output) {
     deleteFile = FALSE
   )
 
+  # Handle "Start Assessment" button by observing the event
   observeEvent(input$start_assess, {
+    # Swtich to prediction tab
     updateTabsetPanel(inputId = "switcher", selected = "Prediction")
+
+    # Scroll the page to top
     runjs("window.scrollTo(0, 0);")
   })
 
-  # uploading dataset
+  # Upload dataset
   datasetInput <- reactive({
     inFile <- input$DataFile
     file_ext <- tools::file_ext(inFile$name)
 
+    # Process excel or csv files respectively
     if (file_ext %in% c("xlsx", "xls")) {
       DataTable <- read_excel(inFile$datapath, sheet = "DataTemplate")
     } else if (file_ext == "csv") {
@@ -377,12 +401,12 @@ server <- function(input, output) {
     return(DataTable)
   })
 
-  # table of input dataset
+  # Table of input dataset
   output$DataTable <- renderTable({
     datasetInput()
   })
 
-  # downloadable xlsx template of dataset
+  # Downloadable xlsx template of dataset
   output$DownloadData <- downloadHandler(
     filename = function() {
       paste("DataTemplate", "xlsx", sep = ".")
@@ -393,7 +417,7 @@ server <- function(input, output) {
     contentType = "ExcelFile"
   )
 
-  # downloadable xlsx sample dataset
+  # Downloadable xlsx sample dataset
   output$SampleDataset <- downloadHandler(
     filename = function() {
       paste("SampleDataset", "xlsx", sep = ".")
@@ -404,7 +428,7 @@ server <- function(input, output) {
     contentType = "ExcelFile"
   )
 
-  # predicting lymphedema for the user-input dataset
+  # Predict lymphedema for the user-input dataset
   output$pred.lymphedema <- DT::renderDataTable(
     {
       validate(need(input$DataFile, "Please upload data file."))
@@ -415,6 +439,7 @@ server <- function(input, output) {
 
       validate(need(file_ext %in% c("xlsx", "xls", "csv"), "Error: Unsupported file format."))
 
+      # Process excel file or csv file
       if (file_ext %in% c("xlsx", "xls")) {
         available_sheets <- excel_sheets(inFile$datapath)
         validate(need("DataTemplate" %in% available_sheets, "Error: Sheet 'DataTemplate' not found in the Excel file. Please rename the sheet."))
@@ -439,13 +464,23 @@ server <- function(input, output) {
       validate(need(all(DataTable[["che"]] %in% c(0, 1)), "Error: Data for 'che' column must contain 0(No) or 1(Yes) only."))
       validate(need(all(DataTable[["axi"]] %in% c(0, 1)), "Error: Data for 'axi' column must contain 0(No) or 1(Yes) only."))
 
+      # Normalize uploaded dataset
       Normalized_DataTable <- DataTable
       # Exclude the ID variable before normalizing
       independent_variables <- setdiff(required_columns, c("ID"))
       Normalized_DataTable[, independent_variables] <- scale(Normalized_DataTable[, independent_variables])
 
+      # Make prediction
       Pred.prob <- predict(model, Normalized_DataTable, type = "prob")
 
+      # Format and store results for displaying in the data table
+      OutputTable <- data.frame(
+        Patient.ID = as.factor(DataTable$ID),
+        Predicted.Probability = round(Pred.prob, 3),
+        Predicted.Lymphedema = ifelse(Pred.prob > 0.5, "Yes", "No")
+      )
+
+      # Format and store results for prediction results visualization
       results_plot <- data.frame(
         DataTable,
         Predicted.Probability = round(Pred.prob, 3),
@@ -453,12 +488,7 @@ server <- function(input, output) {
       )
       prediction_results$data <- results_plot
 
-      OutputTable <- data.frame(
-        Patient.ID = as.factor(DataTable$ID),
-        Predicted.Probability = round(Pred.prob, 3),
-        Predicted.Lymphedema = ifelse(Pred.prob > 0.5, "Yes", "No")
-      )
-
+      # Format column names in the data table
       colnames(OutputTable) <- c("Patient ID", "Predicted Lymphedema Probability", "Predicted Lymphedema Outcome")
 
       OutputTable
@@ -466,7 +496,7 @@ server <- function(input, output) {
     selection = "single"
   )
 
-  # predicting lymphedema for the selected patient
+  # Display lymphedema results for the selected patient
   output$pred.single <- renderValueBox({
     validate(need(input$DataFile, ""))
 
@@ -475,6 +505,7 @@ server <- function(input, output) {
 
     validate(need(file_ext %in% c("xlsx", "xls", "csv"), ""))
 
+    # Process excel file or csv file
     if (file_ext %in% c("xlsx", "xls")) {
       available_sheets <- excel_sheets(inFile$datapath)
       validate(need("DataTemplate" %in% available_sheets, ""))
@@ -500,19 +531,24 @@ server <- function(input, output) {
 
     DataTable$Patient.ID <- as.character(DataTable$ID)
 
+    # Normalize uploaded dataset
     required_columns <- c(required_columns, "Patient.ID")
     Normalized_DataTable <- DataTable
     # Exclude the ID variables before normalizing
     independent_variables <- setdiff(required_columns, c("Patient.ID", "ID"))
     Normalized_DataTable[, independent_variables] <- scale(Normalized_DataTable[, independent_variables])
 
+    # Make prediction
     Pred.prob <- predict(model, Normalized_DataTable, type = "prob")
+
+    # Format and store results
     Pred.Table <- data.frame(
       Patient.ID = as.factor(DataTable$ID),
       Predicted.Probability = round(Pred.prob, 3),
       Predicted.Lymphedema = ifelse(Pred.prob > 0.5, "Yes", "No")
     )
 
+    # Format and store results
     Pred.Table2 <- data.frame(
       Patient.ID = DataTable$ID,
       Predicted.Probability = round(Pred.prob, 3),
@@ -521,6 +557,7 @@ server <- function(input, output) {
       Patient.Sex = ifelse(DataTable$sex == 2, "Female", "Male")
     )
 
+    # Display data in value box
     RowIndex <- input$pred.lymphedema_rows_selected
     ID <- ifelse(is.na(RowIndex), "NA", Pred.Table2$Patient.ID[RowIndex])
     DisplayID <- paste("", ifelse(is.numeric(RowIndex), ID, "N/A"), sep = " ")
@@ -559,6 +596,7 @@ server <- function(input, output) {
     valueBox(HTML(all_values), subtitle_lymph, color = color_lymph, width = 3)
   })
 
+  # Downloadable prediction results into excel file
   output$downloadResult <- downloadHandler(
     filename = function() {
       paste("Prediction_Results.xlsx", sep = "")
@@ -568,6 +606,7 @@ server <- function(input, output) {
     }
   )
 
+  # Handle the download results button
   output$downloadResultsButtonOutput <- renderUI({
     if (!is.null(prediction_results$data)) {
       div(downloadButton("downloadResult", "Download Results"), style = "margin-bottom: 20px;")
@@ -576,7 +615,7 @@ server <- function(input, output) {
     }
   })
 
-  # Visualization based on prediction probabilities
+  # Visualization of prediction results
   output$prediction_plot <- renderPlot(
     {
       validate(need(input$DataFile, "Please upload data file."))
@@ -586,6 +625,7 @@ server <- function(input, output) {
 
       validate(need(file_ext %in% c("xlsx", "xls", "csv"), "Error: Unsupported file format."))
 
+      # Process excel file or csv file
       if (file_ext %in% c("xlsx", "xls")) {
         available_sheets <- excel_sheets(inFile$datapath)
         validate(need("DataTemplate" %in% available_sheets, "Error: Sheet 'DataTemplate' not found in the Excel file. Please rename the sheet."))
@@ -614,7 +654,7 @@ server <- function(input, output) {
 
       converted_prediction_data <- prediction_results$data
 
-      # Plotting
+      # Format data for categorical columns 
       if (input$result_feature == "sex") {
         converted_prediction_data$sex <- ifelse(converted_prediction_data$sex == 1, "Male", "Female")
       } else if (input$result_feature == "recon") {
@@ -627,6 +667,7 @@ server <- function(input, output) {
         converted_prediction_data$tax <- ifelse(converted_prediction_data$tax == 0, "No taxane", ifelse(converted_prediction_data$tax == 1, "Type 1", "Type 2"))
       }
 
+      # Plot the prediction results
       ggplot(converted_prediction_data, aes_string(x = input$result_feature, y = "Predicted.Probability")) +
         geom_point(color = "blue") +
         geom_hline(yintercept = 0.5, linetype = "dashed", color = "red", linewidth = 1.2) +
@@ -647,12 +688,12 @@ server <- function(input, output) {
     {
       validate(need(input$DataFile, "Please upload data file."))
 
-      # Read the uploaded dataset
       inFile <- input$DataFile
       file_ext <- tools::file_ext(inFile$name)
 
       validate(need(file_ext %in% c("xlsx", "xls", "csv"), "Error: Unsupported file format."))
-
+      
+      # Process excel file or csv file
       if (file_ext %in% c("xlsx", "xls")) {
         available_sheets <- excel_sheets(inFile$datapath)
         validate(need("DataTemplate" %in% available_sheets, "Error: Sheet 'DataTemplate' not found in the Excel file. Please rename the sheet."))
@@ -676,6 +717,7 @@ server <- function(input, output) {
       validate(need(input$feature != "select", "Please select a feature."))
       validate(need(input$feature %in% colnames(DataTable), "Error: Please ensure the selected feature is in the uploaded file."))
 
+      # Format data for categorical columns
       if (input$feature == "sex" || input$feature == "recon" || input$feature == "che" || input$feature == "axi" || input$feature == "tax") {
         if (input$feature == "sex") {
           DataTable$sex <- ifelse(DataTable$sex == 1, "Male", "Female")
@@ -699,6 +741,7 @@ server <- function(input, output) {
           plots <- ggplot(DataTable, aes(x = "", fill = tax))
         }
 
+        # Plot the pie chart for categorical data
         plots <- plots + geom_bar(width = 1, color = "black") +
           coord_polar(theta = "y") +
           labs(
@@ -710,6 +753,7 @@ server <- function(input, output) {
           theme(text = element_text(size = 16, face = "bold"), plot.title = element_text(hjust = 0.5)) +
           geom_text(aes(label = paste0(format(round((..count..) / sum(..count..) * 100, 2), nsmall = 2), "%")), stat = "count", position = position_stack(vjust = 0.5), size = 4.5)
       } else {
+        # Plot histogram
         plots <- ggplot(DataTable, aes_string(x = input$feature)) +
           geom_histogram(color = "#000000", fill = "#6d85ff") +
           labs(
@@ -727,11 +771,12 @@ server <- function(input, output) {
     height = 500
   )
 
-  # output section
+  # Output section
   output$txtout <- renderText({
     paste(input$txt1, input$txt2, sep = " ")
   })
 
+  # Plot performance table
   output$table <- renderTable({
     performance_test <- read_xlsx("performance_test.xlsx")
 
@@ -740,6 +785,7 @@ server <- function(input, output) {
     performance_test
   })
 
+  # Plot confusion matrix
   output$confusionMatrix <- renderPlot({
     confusion_matrix <- read_xlsx("confusion_matrix.xlsx")
 
@@ -758,6 +804,7 @@ server <- function(input, output) {
     p
   })
 
+  # Plot relative variable importance chart
   output$variable_impt <- renderPlot({
     variable_impt <- read_xlsx("variance_importance.xlsx")
 
@@ -775,6 +822,7 @@ server <- function(input, output) {
     p1
   })
 
+  # Plot ROC curve graph
   output$ROC <- renderPlot({
     ROC_test <- read_xlsx("ROC_test.xlsx")
 
