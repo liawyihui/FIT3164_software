@@ -75,7 +75,7 @@ ROCit_obj_test$AUC
 # Write the ROC data to excel file
 write.xlsx(ROC_data_test, file = "ROC_test.xlsx")
 
-# Find relative variable importance
+# Find relative variable importance for each weak learners
 importance_list <- list()
 for (i in 1:length(model$weakLearners)) {
     # Calculate variable importance for the ith weak learner
@@ -91,6 +91,7 @@ for (i in 1:length(model$weakLearners)) {
     importance_list[[i]] <- var_imp_df
 }
 
+# Average the respective variable for the relative variance importance scores generated for each weak learner
 mean_scores <- list()
 for (variable in unique(importance_list[[1]]$variable)) {
     # Extract scores for the current variable from all weak learners
