@@ -75,7 +75,7 @@ ROCit_obj_test$AUC
 # Write the ROC data to excel file
 write.xlsx(ROC_data_test, file = "ROC_test.xlsx")
 
-# Find relative variable importance and write results to excel file
+# Find relative variable importance
 importance_list <- list()
 for (i in 1:length(model$weakLearners)) {
     # Calculate variable importance for the ith weak learner
@@ -114,6 +114,7 @@ mean_var_imp_df <- mean_var_imp_df[order(mean_var_imp_df$score, decreasing = TRU
 # Output the mean variable importance data frame
 print(mean_var_imp_df)
 
+# Write results to excel file
 write.xlsx(mean_var_imp_df, file = "variance_importance.xlsx")
 
 # Save model to RData file
