@@ -15,7 +15,7 @@ df <- read.csv("Lymph_dataset.csv")
 # Filter our the y variable
 Table1 <- df %>% select(-c("le"))
 
-# Factor the y variable as Endpoint in Table1
+# Factor the y variable and assign to the new column, "Endpoint" in Table1
 Table1$Endpoint <- factor(df$le)
 
 # Exclude the Endpoint variable before normalizing
@@ -75,7 +75,7 @@ ROCit_obj_test$AUC
 # Write the ROC data to excel file
 write.xlsx(ROC_data_test, file = "ROC_test.xlsx")
 
-# Find relative variable importance and write results to excel file
+# Find relative variable importance for each weak learners
 importance_list <- list()
 for (i in 1:length(model$weakLearners)) {
     # Calculate variable importance for the ith weak learner
@@ -91,6 +91,7 @@ for (i in 1:length(model$weakLearners)) {
     importance_list[[i]] <- var_imp_df
 }
 
+# Find the average the respective variable for the relative variance importance scores generated for each weak learner
 mean_scores <- list()
 for (variable in unique(importance_list[[1]]$variable)) {
     # Extract scores for the current variable from all weak learners
@@ -114,4 +115,5 @@ mean_var_imp_df <- mean_var_imp_df[order(mean_var_imp_df$score, decreasing = TRU
 # Output the mean variable importance data frame
 print(mean_var_imp_df)
 
+# Write results to excel file
 write.xlsx(mean_var_imp_df, file = "variance_importance.xlsx")

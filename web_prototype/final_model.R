@@ -15,7 +15,7 @@ df <- read.csv("Lymph_dataset_train_model.csv")
 # Filter our the y variable
 Table1 <- df %>% select(-c("le"))
 
-# Factor the y variable as Endpoint in Table1
+# Factor the y variable and assign to the new column, "Endpoint" in Table1
 Table1$Endpoint <- factor(df$le)
 
 # Exclude the Endpoint variable before normalizing
@@ -91,7 +91,7 @@ for (i in 1:length(model$weakLearners)) {
     importance_list[[i]] <- var_imp_df
 }
 
-# Average the respective variable for the relative variance importance scores generated for each weak learner
+# Find the average the respective variable for the relative variance importance scores generated for each weak learner
 mean_scores <- list()
 for (variable in unique(importance_list[[1]]$variable)) {
     # Extract scores for the current variable from all weak learners
