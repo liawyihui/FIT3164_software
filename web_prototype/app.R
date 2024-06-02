@@ -174,7 +174,7 @@ ui <- fluidPage(
             ),
             tableOutput("pred.single"),
             uiOutput("downloadResultsButtonOutput"),
-            DT::dataTableOutput("pred.lymphedema")
+            DT::dataTableOutput("pred.lymphedema") # Call the expression from server function to retrieve prediction results
           )
         ), # mainPanel
         fluidRow(
@@ -448,7 +448,10 @@ server <- function(input, output) {
         DataTable <- read.csv(inFile$datapath)
       }
 
-      required_columns <- c("ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte", "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum")
+      required_columns <- c(
+        "ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte",
+        "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum"
+      )
 
       # Validation for columns
       validate(need(all(required_columns %in% colnames(DataTable)), "Error: Dataset is missing required column(s) or wrong column name(s)."))
@@ -514,7 +517,10 @@ server <- function(input, output) {
       DataTable <- read.csv(inFile$datapath)
     }
 
-    required_columns <- c("ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte", "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum")
+    required_columns <- c(
+      "ID", "age", "sex", "lnn", "tax", "fx", "Gy", "recon", "che", "axi", "PLT", "PCT", "WBC", "ANC", "RBC", "MPV", "Eosinophil", "Basophil", "Monocyte",
+      "Hct", "Segmented.neutrophil", "MCHC", "Hb", "Lymphocyte", "MCV", "MCH", "Potassium.serum", "Chloride.serum", "Sodium.serum"
+    )
     # Validation for columns
     validate(need(all(required_columns %in% colnames(DataTable)), ""))
 
@@ -606,7 +612,7 @@ server <- function(input, output) {
     }
   )
 
-  # Handle the download results button
+  # Handle display of the download results button
   output$downloadResultsButtonOutput <- renderUI({
     if (!is.null(prediction_results$data)) {
       div(downloadButton("downloadResult", "Download Results"), style = "margin-bottom: 20px;")
@@ -654,7 +660,7 @@ server <- function(input, output) {
 
       converted_prediction_data <- prediction_results$data
 
-      # Format data for categorical columns 
+      # Format data for categorical columns
       if (input$result_feature == "sex") {
         converted_prediction_data$sex <- ifelse(converted_prediction_data$sex == 1, "Male", "Female")
       } else if (input$result_feature == "recon") {
@@ -692,7 +698,7 @@ server <- function(input, output) {
       file_ext <- tools::file_ext(inFile$name)
 
       validate(need(file_ext %in% c("xlsx", "xls", "csv"), "Error: Unsupported file format."))
-      
+
       # Process excel file or csv file
       if (file_ext %in% c("xlsx", "xls")) {
         available_sheets <- excel_sheets(inFile$datapath)
