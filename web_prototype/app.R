@@ -656,7 +656,7 @@ server <- function(input, output) {
 
       # Validation of selecting feature
       validate(need(input$result_feature != "select", "Please select a feature."))
-      validate(need(input$feature %in% colnames(DataTable), "Error: Please ensure the selected feature is in the uploaded file."))
+      validate(need(input$result_feature %in% colnames(DataTable), "Error: Please ensure the selected feature is in the uploaded file."))
 
       converted_prediction_data <- prediction_results$data
 
