@@ -1,4 +1,4 @@
 # FIT3164_software
 https://mds02.shinyapps.io/web_prototype/
 
-Final model and web prototype are in the "web_prototype" folder
+The final model("final_model.R") and web prototype("app.R") files are in the "web_prototype" folder
